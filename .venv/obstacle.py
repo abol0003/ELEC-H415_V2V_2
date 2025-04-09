@@ -44,15 +44,17 @@ class Obstacle:
         # Utilisation de la formule pour vérifier l'intersection de deux segments de ligne
         r = p2 - p1
         s = q2 - q1
-        rxs = np.cross(r, s)
-        qpxr = np.cross((q1 - p1), r)
+        #rxs = np.cross(r, s)
+        #qpxr = np.cross((q1 - p1), r)
+        rxs = r[0] * s[1] - r[1] * s[0]
+        qpxr = (q1[0] - p1[0]) * r[1] - (q1[1] - p1[1]) * r[0]
 
         if rxs == 0:
             # Les lignes sont colinéaires ou parallèles
             return False
 
-        t = np.cross((q1 - p1), s) / rxs
-        u = np.cross((q1 - p1), r) / rxs
+        t = ((q1[0] - p1[0]) * s[1] - (q1[1] - p1[1]) * s[0]) / rxs
+        u = ((q1[0] - p1[0]) * r[1] - (q1[1] - p1[1]) * r[0]) / rxs
 
         if 0 <= t <= 1 and 0 <= u <= 1:
             intersection = p1 + t * r
@@ -89,7 +91,7 @@ class Obstacle:
         s = np.array([ray_end.x - ray_start.x, ray_end.y - ray_start.y])
 
         # Calculs nécessaires pour trouver le point d'intersection
-        r_cross_s = np.cross(r, s)
+        r_cross_s = r[0] * s[1] - r[1] * s[0]
 
         # Si r et s sont parallèles, r_cross_s sera 0, ce qui peut indiquer des segments parallèles ou colinéaires
         # Par contre, cette fonction est appelée après une vérification d'intersection, donc cette situation ne devrait pas se présenter
@@ -98,7 +100,7 @@ class Obstacle:
 
 
         # Calcul de t pour trouver le point d'intersection le long du segment [p, p+r]
-        t = np.cross(q - p, s) / r_cross_s
+        t = ((q[0] - p[0]) * s[1] - (q[1] - p[1]) * s[0]) / r_cross_s
 
         # Calcul du point d'intersection
         intersection = p + t * r

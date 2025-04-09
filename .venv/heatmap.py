@@ -24,7 +24,7 @@ def draw_obstacles(ax, env):
         line = [(x0, y0), (x1, y1)]
         lines.append(line)
         line_colors.append(obstacle.material.color)
-    lc = LineCollection(lines, colors=line_colors, linewidths=[obstacle.thickness * 35 for _ in lines])
+    lc = LineCollection(lines, colors=line_colors, linewidths=[obstacle.thickness  for _ in lines])
     ax.add_collection(lc)
     for emitter in env.emitters:
         ax.scatter(emitter.position.x, emitter.position.y, color='white', s=10, edgecolors='black',
@@ -46,7 +46,7 @@ def calculate_power_at_point(env, ray_tracer, x, y):
     Calcule la puissance de signal reçue en dBm à un point spécifique.
     Utilise un récepteur fictif pour mesurer la puissance.
     """
-    dummy_receiver = Receiver(Position(x, y), sensitivity=-90, gain=1.7)
+    dummy_receiver = Receiver(Position(x, y), sensitivity=-70)
     env.receivers = [dummy_receiver]
     ray_tracer.ray_tracer()
     return dummy_receiver.received_power_dBm if dummy_receiver.received_power_dBm >= -90 else -90
@@ -77,7 +77,7 @@ def create_heatmap(env, width, height, resolution):
     X, Y = np.meshgrid(x, y)
     power_grid = np.full(X.shape, np.nan)
     rate_grid = np.full(X.shape, np.nan)
-    ray_tracer = RayTracing(env, 60e9)
+    ray_tracer = RayTracing(env)
     func = partial(calculate_power_at_point, env, ray_tracer)
     with ProcessPoolExecutor() as executor:
         results = executor.map(func, X.ravel(), Y.ravel())
@@ -95,8 +95,11 @@ def create_heatmap(env, width, height, resolution):
     ax1.set_title('Heatmap de la Puissance Reçue en dBm')
     ax1.set_xlim([0, width])
     ax1.set_ylim([0, height])
-    ax1.set_aspect('equal')
+    ax1.set_aspect('auto')
     ax1.invert_yaxis()
+    ax1.set_xticks(np.arange(0, width, resolution))  # Résolution 5x5 ou comme définie
+    ax1.set_yticks(np.arange(0, height, resolution))  # Résolution 5x5 ou comme définie
+    ax1.grid(True)  # Grille activée avec les ticks calculés automatiquement
     plt.savefig('dBmheat.jpeg', format='jpeg')
     plt.show()
 
@@ -109,14 +112,17 @@ def create_heatmap(env, width, height, resolution):
     ax2.set_title('Heatmap du Débit Binaire en Mbps')
     ax2.set_xlim([0, width])
     ax2.set_ylim([0, height])
-    ax2.set_aspect('equal')
+    ax2.set_aspect('auto')
     ax2.invert_yaxis()
+    ax2.set_xticks(np.arange(0, width, resolution))  
+    ax2.set_yticks(np.arange(0, height, resolution)) 
+    ax2.grid(True)
     plt.savefig('Mbpsheat.jpeg', format='jpeg')
     plt.show()
 
 if __name__ == '__main__':
     env = Environment()
     start_time = time.time()
-    create_heatmap(env, width=17, height=9, resolution=0.2)
+    create_heatmap(env, width=1000, height=25, resolution=5)
     end_time = time.time()
     print(f"Heatmap Time: {end_time - start_time:.2f} seconds")
