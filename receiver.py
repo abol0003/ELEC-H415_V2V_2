@@ -1,10 +1,9 @@
 from position import Position
 
 class Receiver:
-    def __init__(self, position, sensitivity, gain):
+    def __init__(self, position, sensitivity):
         self.position = position
         self.sensitivity = sensitivity
-        self.gain = gain
         self.received_power = None
 
     def draw(self, canvas, scale=50):

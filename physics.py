@@ -3,7 +3,7 @@ from position import Position
 from material import Material
 from obstacle import Obstacle
 
-frequency = 60e9
+frequency = 5.9e9
 def calculer_angle_incidence(pos_emetteur, pos_incidence, obstacle):
     """
     Calcule et renvoie l'angle d'incidence avec un émetteur et un point d'incidence donnés.

@@ -2,11 +2,9 @@ from position import Position
 
 class Emitter:
 
-    def __init__(self, position, power, frequency, gain):
+    def __init__(self, position, power):
         self.position = position
         self.power = power #dBm
-        self.frequency = frequency
-        self.gain = gain
 
     def draw(self, canvas, scale=50):
         """
