@@ -44,10 +44,14 @@ def calculer_gamma_perp(obstacle, theta_i):
     Calcule le coefficient de réflexion perpendiculaire
     """
     # Récupération des impédances Z_material et Z0 de l'objet obstacle
-    Z_material, Z0 = obstacle.impedance(frequency)
-    theta_t = calcul_angle_trans(obstacle, theta_i)
-    gammaperp = (Z_material * np.cos(theta_i) - Z0 * np.cos(theta_t)) / (
-                Z_material * np.cos(theta_i) + Z0 * np.cos(theta_t))
+    #Z_material, Z0 = obstacle.impedance(frequency)
+    #theta_t = calcul_angle_trans(obstacle, theta_i)
+    #gammaperp = (Z_material * np.cos(theta_i) - Z0 * np.cos(theta_t)) / (
+             #   Z_material * np.cos(theta_i) + Z0 * np.cos(theta_t))
+
+    eps_m = obstacle.material.permittivity# *(10**(-9))/(36*np.pi)
+    cste= np.sqrt(eps_m)*np.sqrt(1-(np.sin(theta_i)**2/eps_m))
+    gammaperp= (np.cos(theta_i)-cste)/(np.cos(theta_i)+cste)
 
     return gammaperp
 
