@@ -44,7 +44,7 @@ class Environment:
         """
         Initialise les matériaux utilisés dans les obstacles (bâtiments, murs, etc.).
         """
-        self.materials['building'] = Material('building', 4, 1.43, 'gray')
+        self.materials['building'] = Material('building', 4,  'gray')
         #self.materials['metal'] = Material('metal', 1, 10**7, 'darkgray')
         #self.materials['glass'] = Material('glass', 6.3919, 0.000107, 'lightblue')
 
@@ -68,8 +68,8 @@ class Environment:
         """
         Initialise les récepteurs dans l'environnement.
         """
-        self.receivers.append(Receiver(Position(910, 10), -70))  # Récepteur près du premier émetteur
-        #self.receivers.append(Receiver(Position(12, 6), -90, 1.7))  # Récepteur près du second émetteur
+        self.receivers.append(Receiver(Position(110, 10), -70))
+        #self.receivers.append(Receiver(Position(12, 6), -90, 1.7))
 
     def draw(self, canvas, scale=50):
         """

@@ -16,29 +16,25 @@ def calculate_mpc_for_all_reflections():
             print(f"--- Calcul des MPC pour l'émetteur {emitter.position} et le récepteur {receiver.position} ---")
 
             # Propagation directe (LOS)
-            direct_power, direct_volt = ray_tracing.direct_propagation(emitter, receiver)
             direct_distance = ray_tracing.calc_distance(emitter.position, receiver.position)
             direct_angle = calculer_angle_incidence(emitter.position, receiver.position, env.obstacles[0])
             direct_delay = direct_distance / 299792458 *10**(6) # Délai de propagation en secondes (vitesse de la lumière)
             print(
-                f"Direct Propagation (LOS): Angle d'incidence = {np.degrees(direct_angle):.2f}°, Délai = {direct_delay:.6f}µs")
+                f"Direct Propagation (LOS): Angle d'incidence = {np.degrees(direct_angle):.4f}°, Délai = {direct_delay:.6f}µs")
 
             # Réflexion simple (1 réflexion)
-            reflex_power, reflex_volt = ray_tracing.reflex_and_power(emitter, receiver)
             for obstacle in env.obstacles:
                 image_position = ray_tracing.compute_image_position(obstacle, emitter.position)
                 if obstacle.check_intersection(image_position, receiver.position):
                     impact_point = obstacle.impact_point(image_position, receiver.position)
                     reflex_angle = calculer_angle_incidence(emitter.position, impact_point, obstacle)
-                    reflex_distance = ray_tracing.calc_distance(emitter.position,
-                                                                impact_point) + ray_tracing.calc_distance(impact_point,
-                                                                                                          receiver.position)
+                    reflex_distance = ray_tracing.calc_distance(image_position, receiver.position)
                     reflex_delay = reflex_distance / 299792458 *10**(6) # Délai de propagation
                     print(
-                        f"Reflection 1: Angle d'incidence = {np.degrees(reflex_angle):.2f}°, Délai = {reflex_delay:.6f}µs")
+                        f"Reflection 1: Angle d'incidence = {np.degrees(reflex_angle):.4f}°, Délai = {reflex_delay:.6f}µs")
 
             # Réflexion double (2 réflexions)
-            double_reflex_power, double_reflex_volt = ray_tracing.double_reflex_and_power(emitter, receiver)
+            #double_reflex_power, double_reflex_volt = ray_tracing.double_reflex_and_power(emitter, receiver)
             for obstacle1 in env.obstacles:
                 for obstacle2 in env.obstacles:
                     if obstacle1 == obstacle2:
@@ -47,16 +43,22 @@ def calculate_mpc_for_all_reflections():
                     image_pos2 = ray_tracing.compute_image_position(obstacle2, image_pos1)
                     if obstacle2.check_intersection(image_pos2, receiver.position):
                         impact_point2 = obstacle2.impact_point(image_pos2, receiver.position)
-                        double_reflex_angle = calculer_angle_incidence(emitter.position, impact_point2, obstacle1)
-                        double_reflex_distance = ray_tracing.calc_distance(emitter.position,
-                                                                           image_pos1) + ray_tracing.calc_distance(
-                            image_pos1, impact_point2) + ray_tracing.calc_distance(impact_point2, receiver.position)
+                    if obstacle1.check_intersection(image_pos1,impact_point2):
+                        impact_point1 = obstacle1.impact_point(image_pos1,impact_point2)
+                        double_reflex_angle1 = calculer_angle_incidence(emitter.position, impact_point1, obstacle1)
+                        double_reflex_angle2 = calculer_angle_incidence(image_pos1, impact_point2, obstacle2)
+                        double_reflex_distance = ray_tracing.calc_distance(image_pos2, receiver.position)
                         double_reflex_delay = double_reflex_distance / 299792458 *10**(6) # Délai de propagation
                         print(
-                            f"Reflection 2: Angle d'incidence = {np.degrees(double_reflex_angle):.2f}°, Délai = {double_reflex_delay:.6f}µs")
+                            f"Reflection 2 : angles d'incidence 1 = "
+                            f"{np.degrees(double_reflex_angle1):.4f}°, "
+                            f"Reflection 2 : angles d'incidence 2 = "
+                            f"{np.degrees(double_reflex_angle2):.4f}°, "
+                            f"délai = {double_reflex_delay:.6f} µs"
+                        )
 
             # Réflexion triple (3 réflexions)
-            triple_reflex_power, triple_reflex_volt = ray_tracing.triple_reflex_and_power(emitter, receiver)
+            #triple_reflex_power, triple_reflex_volt = ray_tracing.triple_reflex_and_power(emitter, receiver)
             for obstacle1 in env.obstacles:
                 for obstacle2 in env.obstacles:
                     for obstacle3 in env.obstacles:
@@ -71,17 +73,24 @@ def calculate_mpc_for_all_reflections():
                                 impact_point2 = obstacle2.impact_point(image_pos2, impact_point3)
                                 if obstacle1.check_intersection(image_pos1, impact_point2):
                                     impact_point1 = obstacle1.impact_point(image_pos1, impact_point2)
-                                    triple_reflex_angle = calculer_angle_incidence(emitter.position, impact_point1,
+                                    triple_reflex_angle1 = calculer_angle_incidence(emitter.position, impact_point1,
                                                                                    obstacle1)
-                                    triple_reflex_distance = ray_tracing.calc_distance(emitter.position,
-                                                                                       image_pos1) + ray_tracing.calc_distance(
-                                        image_pos1, impact_point1) + ray_tracing.calc_distance(impact_point1,
-                                                                                               impact_point2) + ray_tracing.calc_distance(
-                                        impact_point2, impact_point3) + ray_tracing.calc_distance(impact_point3,
-                                                                                                  receiver.position)
+                                    triple_reflex_angle2 = calculer_angle_incidence(image_pos1, impact_point2,
+                                                                                    obstacle2)
+                                    triple_reflex_angle3 = calculer_angle_incidence(image_pos2, impact_point3,
+                                                                                   obstacle3)
+                                    triple_reflex_distance = ray_tracing.calc_distance(image_pos3,receiver.position)
+
                                     triple_reflex_delay = triple_reflex_distance / 299792458 *10**(6) # Délai de propagation
                                     print(
-                                        f"Reflection 3: Angle d'incidence = {np.degrees(triple_reflex_angle):.2f}°, Délai = {triple_reflex_delay:.6f}µs")
+                                        f"Reflection 3 : angles d'incidence 1 = "
+                                        f"{np.degrees(triple_reflex_angle1):.4f}°, "
+                                        f"Reflection 3 : angles d'incidence 2 = "
+                                        f"{np.degrees(triple_reflex_angle2):.4f}°, "
+                                        f"Reflection 3 : angles d'incidence 3 = "
+                                        f"{np.degrees(triple_reflex_angle3):.4f}°, "
+                                        f"délai = {triple_reflex_delay:.6f} µs"
+                                    )
 
 
 # Exécution du calcul pour chaque MPC avec propagation directe et réflexions

@@ -95,15 +95,15 @@ def calculer_coeff_reflexion(obstacle, position_emetteur, position_reflexion): #
     Calculer le coefficient de réflexion.
     """
     theta_i = calculer_angle_incidence(position_emetteur, position_reflexion, obstacle)
-    theta_t =calcul_angle_trans(obstacle, theta_i)
+    #theta_t =calcul_angle_trans(obstacle, theta_i)
     gammap = calculer_gamma_perp(obstacle, theta_i)
-    gamma_m = calculer_gammam(obstacle)
-    s = calculer_distance_parcourue(obstacle, theta_i)
-    beta_s = calculer_phase_accumulee(obstacle, theta_i)
-    numerateur = gammap * np.exp(-2 * gamma_m*s) * np.exp(beta_s)
-    denominateur = 1 - ((gammap ** 2) * np.exp(-2 * gamma_m * s) * np.exp(beta_s))
+    #gamma_m = calculer_gammam(obstacle)
+    #s = calculer_distance_parcourue(obstacle, theta_i)
+    #beta_s = calculer_phase_accumulee(obstacle, theta_i)
+    #numerateur = gammap * np.exp(-2 * gamma_m*s) * np.exp(beta_s)
+    #denominateur = 1 - ((gammap ** 2) * np.exp(-2 * gamma_m * s) * np.exp(beta_s))
 
-    return gammap - ((1 - gammap ** 2)) * (numerateur / denominateur)
+    return gammap #- ((1 - gammap ** 2)) * (numerateur / denominateur)
 
 def calculer_coeff_transmission(obstacle, position_emetteur, position_recepteur):
     """

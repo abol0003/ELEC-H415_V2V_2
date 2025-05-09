@@ -3,149 +3,168 @@ from environment import Environment
 from raytracing import RayTracing
 import matplotlib.pyplot as plt
 import matplotlib
-matplotlib.use('TkAgg')  # Change le backend à TkAgg
+matplotlib.use('TkAgg')  # Utiliser le backend TkAgg pour l'affichage
 from itertools import cycle
 
 class TestRayTracingWithEnvironment(unittest.TestCase):
     def setUp(self):
         self.environment = Environment()
         self.ray_tracing = RayTracing(self.environment)
+        self.colors = cycle(['b', 'g', 'r', 'c', 'm', 'y', 'k'])
 
     def plot_with_emitters_and_receivers(self, emitter, receiver):
-        """Fonction générale pour afficher les émetteurs, récepteurs et obstacles."""
-        plt.scatter(emitter.position.x, emitter.position.y, color='blue', s=100, edgecolor='black', label='Émetteur')
-        plt.scatter(receiver.position.x, receiver.position.y, color='cyan', s=100, edgecolor='black', label='Récepteur')
+        plt.scatter(emitter.position.x, emitter.position.y,
+                    color='blue', s=100, edgecolor='black', label='Émetteur')
+        plt.scatter(receiver.position.x, receiver.position.y,
+                    color='cyan', s=100, edgecolor='black', label='Récepteur')
 
     def plot_obstacles(self):
-        """Fonction pour afficher les obstacles dans l'environnement."""
         for obstacle in self.environment.obstacles:
-            plt.plot([obstacle.start.x, obstacle.end.x], [obstacle.start.y, obstacle.end.y], 'k-', linewidth=2)
+            plt.plot([obstacle.start.x, obstacle.end.x],
+                     [obstacle.start.y, obstacle.end.y], 'k-', linewidth=2)
+
+    def _plot_segments(self, segments):
+        for (p1, p2), color in segments:
+            plt.plot([p1.x, p2.x], [p1.y, p2.y], color + '--')
+
+    def _finalize_plot(self, title, filename=None):
+        self.plot_obstacles()
+        plt.xlabel('X Position')
+        plt.ylabel('Y Position')
+        plt.title(title)
+        plt.legend(loc='best', fontsize='small')
+        plt.show()
+        if filename:
+            plt.savefig(filename, format='jpeg')
 
     def test_direct_propagation(self):
-        """Test de la propagation directe des rayons."""
         print("\nTest de la propagation directe :")
         for emitter in self.environment.emitters:
             for receiver in self.environment.receivers:
-                power_received = self.ray_tracing.direct_propagation(emitter, receiver)
-                print(f"Émetteur à {emitter.position}, Récepteur à {receiver.position}, Puissance reçue : {power_received} W")
-                self.assertIsNotNone(power_received)
-                plt.plot([emitter.position.x, receiver.position.x], [emitter.position.y, receiver.position.y], '--')
-
-        self.plot_obstacles()
-        self.plot_with_emitters_and_receivers(emitter, receiver)
-        plt.xlabel('X Position')
-        plt.ylabel('Y Position')
-        plt.title('Propagation directe des rayons')
-        plt.show()
-        plt.savefig('direct_propagation.jpeg', format='jpeg')
+                power, volt = self.ray_tracing.direct_propagation(emitter, receiver)
+                print(f"Émetteur à {emitter.position}, Récepteur à {receiver.position}, "
+                      f"Puissance totale reçue après LOS : {power} W")
+                print(f"Voltage reçue : {volt} V")
+                self.assertIsNotNone(power)
+                segments = [((emitter.position, receiver.position), next(self.colors))]
+                self.plot_with_emitters_and_receivers(emitter, receiver)
+                self._plot_segments(segments)
+        self._finalize_plot('Propagation directe des rayons', 'direct_propagation.jpeg')
 
     def test_reflection(self):
-        """Test de la réflexion simple des rayons."""
         print("\nTest de la réflexion simple :")
-        colors = cycle(['b', 'g', 'r', 'c', 'm', 'y', 'k'])
-
         for emitter in self.environment.emitters:
             for receiver in self.environment.receivers:
-                power_received = self.ray_tracing.reflex_and_power(emitter, receiver)
-                print(f"Émetteur à {emitter.position}, Récepteur à {receiver.position}, Puissance totale reçue après simple: {power_received} W")
+                p, v = self.ray_tracing.reflex_and_power(emitter, receiver)
+                print(f"Émetteur à {emitter.position}, Récepteur à {receiver.position}, "
+                      f"Puissance reçue après réflexion simple : {p} W")
+                print(f"Voltage reçue : {v} V")
+                self.assertIsNotNone(p)
+                segments = []
                 for obstacle in self.environment.obstacles:
-                    color = next(colors)
-                    image_position = self.ray_tracing.compute_image_position(obstacle, emitter.position)
-                    if obstacle.check_intersection(image_position, receiver.position):
-                        imp_p = obstacle.impact_point(image_position, receiver.position)
-                        if imp_p:
-                            plt.plot([emitter.position.x, imp_p.x], [emitter.position.y, imp_p.y], color+'--')
-                            plt.plot([imp_p.x, receiver.position.x], [imp_p.y, receiver.position.y], color+'--')
-                            power_received = self.ray_tracing.reflex_and_power(emitter, receiver)
-                            print(f"Puissance reçue après réflexion (Obstacle {obstacle}): {power_received} W")
-
-        self.plot_obstacles()
-        self.plot_with_emitters_and_receivers(emitter, receiver)
-        plt.xlabel('X Position')
-        plt.ylabel('Y Position')
-        plt.title('Réflexion simple des rayons')
-        #plt.legend()
-        plt.show()
-        plt.savefig('simple_reflection.jpeg', format='jpeg')
+                    img = self.ray_tracing.compute_image_position(obstacle, emitter.position)
+                    if obstacle.check_intersection(img, receiver.position):
+                        imp = obstacle.impact_point(img, receiver.position)
+                        if imp:
+                            c = next(self.colors)
+                            segments.append(((emitter.position, imp), c))
+                            segments.append(((imp, receiver.position), c))
+                self.plot_with_emitters_and_receivers(emitter, receiver)
+                self._plot_segments(segments)
+        self._finalize_plot('Réflexion simple des rayons', 'simple_reflection.jpeg')
 
     def test_double_reflection(self):
-        """Test de la réflexion double des rayons."""
         print("\nTest de la réflexion double :")
-        colors = cycle(['b', 'r', 'g', 'c', 'm', 'y', 'k'])
-
         for emitter in self.environment.emitters:
             for receiver in self.environment.receivers:
-                power_received = self.ray_tracing.double_reflex_and_power(emitter, receiver)
-                print(f"Émetteur à {emitter.position}, Récepteur à {receiver.position}, Puissance totale reçue après réflexion double : {power_received} W")
-                self.assertIsNotNone(power_received)
-                #self.assertGreater(power_received, 0)
-
-                for obstacle1 in self.environment.obstacles:
-                    image_pos1 = self.ray_tracing.compute_image_position(obstacle1, emitter.position)
-                    for obstacle2 in self.environment.obstacles:
-                        if obstacle1 == obstacle2:
+                p, v = self.ray_tracing.double_reflex_and_power(emitter, receiver)
+                print(f"Émetteur à {emitter.position}, Récepteur à {receiver.position}, "
+                      f"Puissance reçue après réflexion double : {p} W")
+                print(f"Voltage reçue : {v} V")
+                self.assertIsNotNone(p)
+                segments = []
+                for o1 in self.environment.obstacles:
+                    img1 = self.ray_tracing.compute_image_position(o1, emitter.position)
+                    for o2 in self.environment.obstacles:
+                        if o1 == o2:
                             continue
-                        image_pos2 = self.ray_tracing.compute_image_position(obstacle2, image_pos1)
-                        if obstacle2.check_intersection(image_pos2, receiver.position):
-                            impact_point2 = obstacle2.impact_point(image_pos2, receiver.position)
-                            if obstacle1.check_intersection(image_pos1, impact_point2):
-                                impact_point1 = obstacle1.impact_point(image_pos1, impact_point2)
-                                if impact_point1 is not None and impact_point2 is not None:
-                                    color = next(colors)
-                                    plt.plot([emitter.position.x, impact_point1.x], [emitter.position.y, impact_point1.y], color + '--')
-                                    plt.plot([impact_point1.x, impact_point2.x], [impact_point1.y, impact_point2.y], color + '--')
-                                    plt.plot([impact_point2.x, receiver.position.x], [impact_point2.y, receiver.position.y], color + '--')
-
-        self.plot_obstacles()
-        self.plot_with_emitters_and_receivers(emitter, receiver)
-        plt.xlabel('X Position')
-        plt.ylabel('Y Position')
-        plt.title('Doubles réflexions des rayons')
-        plt.show()
-        plt.savefig('double_reflection.jpeg', format='jpeg')
+                        img2 = self.ray_tracing.compute_image_position(o2, img1)
+                        if o2.check_intersection(img2, receiver.position):
+                            imp2 = o2.impact_point(img2, receiver.position)
+                            if o1.check_intersection(img1, imp2):
+                                imp1 = o1.impact_point(img1, imp2)
+                                if imp1 and imp2:
+                                    c = next(self.colors)
+                                    segments.extend([
+                                        ((emitter.position, imp1), c),
+                                        ((imp1, imp2), c),
+                                        ((imp2, receiver.position), c)
+                                    ])
+                self.plot_with_emitters_and_receivers(emitter, receiver)
+                self._plot_segments(segments)
+        self._finalize_plot('Doubles réflexions des rayons', 'double_reflection.jpeg')
 
     def test_triple_reflection(self):
-        """Test de la réflexion triple des rayons."""
         print("\nTest de la réflexion triple :")
-        colors = cycle(['b', 'g', 'r', 'c', 'm', 'y', 'k'])
-
         for emitter in self.environment.emitters:
             for receiver in self.environment.receivers:
-                power_received = self.ray_tracing.triple_reflex_and_power(emitter, receiver)
-                print(f"Émetteur à {emitter.position}, Récepteur à {receiver.position}, Puissance totale reçue après réflexion triple : {power_received} W")
-                self.assertIsNotNone(power_received)
-                #self.assertGreater(power_received, 0)
-
-                for obstacle1 in self.environment.obstacles:
-                    image_pos1 = self.ray_tracing.compute_image_position(obstacle1, emitter.position)
-                    for obstacle2 in self.environment.obstacles:
-                        if obstacle1 == obstacle2:
+                p, v = self.ray_tracing.triple_reflex_and_power(emitter, receiver)
+                print(f"Émetteur à {emitter.position}, Récepteur à {receiver.position}, "
+                      f"Puissance reçue après réflexion triple : {p} W")
+                print(f"Voltage reçue : {v} V")
+                self.assertIsNotNone(p)
+                segments = []
+                for o1 in self.environment.obstacles:
+                    img1 = self.ray_tracing.compute_image_position(o1, emitter.position)
+                    for o2 in self.environment.obstacles:
+                        if o1 == o2:
                             continue
-                        image_pos2 = self.ray_tracing.compute_image_position(obstacle2, image_pos1)
-                        for obstacle3 in self.environment.obstacles:
-                            if obstacle3 == obstacle2:
+                        img2 = self.ray_tracing.compute_image_position(o2, img1)
+                        for o3 in self.environment.obstacles:
+                            if o3 == o2:
                                 continue
-                            image_pos3 = self.ray_tracing.compute_image_position(obstacle3, image_pos2)
-                            if obstacle3.check_intersection(image_pos3, receiver.position):
-                                impact_point3 = obstacle3.impact_point(image_pos3, receiver.position)
-                                if obstacle2.check_intersection(image_pos2, impact_point3):
-                                    impact_point2 = obstacle2.impact_point(image_pos2, impact_point3)
-                                    if obstacle1.check_intersection(image_pos1, impact_point2):
-                                        impact_point1 = obstacle1.impact_point(image_pos1, impact_point2)
-                                        if impact_point1 is not None and impact_point2 is not None and impact_point3 is not None:
-                                            color = next(colors)
-                                            plt.plot([emitter.position.x, impact_point1.x], [emitter.position.y, impact_point1.y], color + '--')
-                                            plt.plot([impact_point1.x, impact_point2.x], [impact_point1.y, impact_point2.y], color + '--')
-                                            plt.plot([impact_point2.x, impact_point3.x], [impact_point2.y, impact_point3.y], color + '--')
-                                            plt.plot([impact_point3.x, receiver.position.x], [impact_point3.y, receiver.position.y], color + '--')
+                            img3 = self.ray_tracing.compute_image_position(o3, img2)
+                            if o3.check_intersection(img3, receiver.position):
+                                imp3 = o3.impact_point(img3, receiver.position)
+                                if o2.check_intersection(img2, imp3):
+                                    imp2 = o2.impact_point(img2, imp3)
+                                    if o1.check_intersection(img1, imp2):
+                                        imp1 = o1.impact_point(img1, imp2)
+                                        if imp1 and imp2 and imp3:
+                                            c = next(self.colors)
+                                            segments.extend([
+                                                ((emitter.position, imp1), c),
+                                                ((imp1, imp2), c),
+                                                ((imp2, imp3), c),
+                                                ((imp3, receiver.position), c)
+                                            ])
+                self.plot_with_emitters_and_receivers(emitter, receiver)
+                self._plot_segments(segments)
+        self._finalize_plot('Triple réflexion des rayons')
 
-        self.plot_obstacles()
-        self.plot_with_emitters_and_receivers(emitter, receiver)
-        plt.xlabel('X Position')
-        plt.ylabel('Y Position')
-        plt.title('Triple réflexion des rayons')
-        plt.show()
-        plt.savefig('triple_reflection.jpeg', format='jpeg')
+    def test_combined_reflections(self):
+        print("\nTest combiné (direct + 1R + 2R + 3R) :")
+        for emitter in self.environment.emitters:
+            for receiver in self.environment.receivers:
+                p_los, v_los = self.ray_tracing.direct_propagation(emitter, receiver)
+                p1, v1 = self.ray_tracing.reflex_and_power(emitter, receiver)
+                p2, v2 = self.ray_tracing.double_reflex_and_power(emitter, receiver)
+                p3, v3 = self.ray_tracing.triple_reflex_and_power(emitter, receiver)
+                p_total = p_los + p1 + p2 + p3
+                v_total = v_los + v1 + v2 + v3
+                print(f"Émetteur {emitter.position}, Récepteur {receiver.position} -> "
+                      f"Puissance totale = {p_total:.6e} W, Tension totale = {v_total:.6e} V")
+                self.assertIsNotNone(p_total)
+                self.assertIsNotNone(v_total)
+                self.assertGreaterEqual(p_total, p_los)
 
 if __name__ == '__main__':
-    unittest.main()
+    suite = unittest.TestSuite([
+        TestRayTracingWithEnvironment('test_direct_propagation'),
+        TestRayTracingWithEnvironment('test_reflection'),
+        TestRayTracingWithEnvironment('test_double_reflection'),
+        TestRayTracingWithEnvironment('test_triple_reflection'),
+        TestRayTracingWithEnvironment('test_combined_reflections'),
+    ])
+    runner = unittest.TextTestRunner()
+    runner.run(suite)

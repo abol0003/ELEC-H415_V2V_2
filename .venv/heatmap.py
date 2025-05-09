@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
+import time
 matplotlib.use('TkAgg')
 from matplotlib.collections import LineCollection
 from functools import partial
@@ -9,7 +10,6 @@ from environment import Environment
 from raytracing import RayTracing
 from position import Position
 from receiver import Receiver
-import time
 
 def draw_obstacles(ax, env):
     """
@@ -59,7 +59,7 @@ def calculate_average_received_power(env, ray_tracer, width, height):
     total_power = 0
     count = 0
     for pos in dummy_positions:
-        dummy_receiver = Receiver(Position(pos[0], pos[1]), sensitivity=-90, gain=1.7)
+        dummy_receiver = Receiver(Position(pos[0], pos[1]), sensitivity=-90)
         env.receivers = [dummy_receiver]
         ray_tracer.ray_tracer()
         if dummy_receiver.received_power_dBm and dummy_receiver.received_power_dBm >= -90:
@@ -67,62 +67,69 @@ def calculate_average_received_power(env, ray_tracer, width, height):
             count += 1
     return total_power / count if count else -np.inf
 
-def create_heatmap(env, width, height, resolution):
+def create_heatmap(env, width, height, resolution, with_pl=False):
     """
-    Crée une heatmap de la puissance reçue et du débit binaire sur une grille définie par width et height avec la résolution donnée.
-    Utilise le multiprocessing pour calculer la puissance en chaque point de la grille.
+    Crée une heatmap (puissance et débit) en mode sans ou avec path loss.
+    :param with_pl: si True, active ray_tracer_with_path_loss()
+    :param pl_exponent, pl_d0: paramètres du modèle log-distance
     """
     x = np.arange(0, width, resolution)
     y = np.arange(0, height, resolution)
     X, Y = np.meshgrid(x, y)
-    power_grid = np.full(X.shape, np.nan)
-    rate_grid = np.full(X.shape, np.nan)
-    ray_tracer = RayTracing(env)
-    func = partial(calculate_power_at_point, env, ray_tracer)
+
+    # Instancie le ray tracer
+    rt = RayTracing(env)
+
+    # Active path loss si demandé
+    if with_pl:
+        rt.use_path_loss = True
+
+
+    # Fonction pour un point
+    func = partial(calculate_power_at_point, env, rt)
     with ProcessPoolExecutor() as executor:
-        results = executor.map(func, X.ravel(), Y.ravel())
-    power_grid = np.array(list(results)).reshape(X.shape)
-    rate_grid = np.vectorize(dbm_to_mbps)(power_grid)
-    #average_power = calculate_average_received_power(env, ray_tracer, width, height)
-    #print(f"Average Received Power: {average_power:.2f} dBm")
-    #plot des heatmaps
-    fig1, ax1 = plt.subplots(figsize=(12, 10))
-    power_heatmap = ax1.pcolormesh(X, Y, power_grid, shading='auto', cmap='viridis', vmin=-90, vmax=-40)
-    plt.colorbar(power_heatmap, ax=ax1, label='Puissance Reçue (dBm)')
+        power = np.array(list(executor.map(func, X.ravel(), Y.ravel())))
+    power_grid = power.reshape(X.shape)
+    # rate_grid = np.vectorize(dbm_to_mbps)(power_grid)
+    valid = ~np.isnan(power_grid)
+    # Titre et noms de fichiers
+    suffix = '_PL' if with_pl else ''
+    png1 = f'dBmheat{suffix}.jpeg'
+    png2 = f'Mbpsheat{suffix}.jpeg'
+    title1 = 'Heatmap de la Puissance Reçue (dBm)' + (' avec path loss' if with_pl else '')
+    title2 = 'Heatmap du Débit Binaire (Mbps)' + (' avec path loss' if with_pl else '')
+
+    # Plot puissance
+    fig1, ax1 = plt.subplots(figsize=(12,10))
+    pcm = ax1.pcolormesh(X, Y, power_grid, shading='auto', cmap='viridis', vmin=-71, vmax=np.max(power_grid[valid]))
+    plt.colorbar(pcm, ax=ax1, label='Puissance Reçue (dBm)')
     draw_obstacles(ax1, env)
-    ax1.set_xlabel('X Position (m)')
-    ax1.set_ylabel('Y Position (m)')
-    ax1.set_title('Heatmap de la Puissance Reçue en dBm')
-    ax1.set_xlim([0, width])
-    ax1.set_ylim([0, height])
-    ax1.set_aspect('auto')
-    ax1.invert_yaxis()
-    ax1.set_xticks(np.arange(0, width, resolution))  # Résolution 5x5 ou comme définie
-    ax1.set_yticks(np.arange(0, height, resolution))  # Résolution 5x5 ou comme définie
-    ax1.grid(True)  # Grille activée avec les ticks calculés automatiquement
-    plt.savefig('dBmheat.jpeg', format='jpeg')
+    ax1.set(title=title1, xlabel='X (m)', ylabel='Y (m)')
+    ax1.invert_yaxis(); ax1.set_aspect('auto')
+    #plt.savefig(png1, format='jpeg')
     plt.show()
 
-    fig2, ax2 = plt.subplots(figsize=(12, 10))
-    rate_heatmap = ax2.pcolormesh(X, Y, rate_grid, shading='auto', cmap='plasma', vmin=50, vmax=40000)
-    plt.colorbar(rate_heatmap, ax=ax2, label='Débit Binaire (Mbps)')
-    draw_obstacles(ax2, env)
-    ax2.set_xlabel('X Position (m)')
-    ax2.set_ylabel('Y Position (m)')
-    ax2.set_title('Heatmap du Débit Binaire en Mbps')
-    ax2.set_xlim([0, width])
-    ax2.set_ylim([0, height])
-    ax2.set_aspect('auto')
-    ax2.invert_yaxis()
-    ax2.set_xticks(np.arange(0, width, resolution))  
-    ax2.set_yticks(np.arange(0, height, resolution)) 
-    ax2.grid(True)
-    plt.savefig('Mbpsheat.jpeg', format='jpeg')
-    plt.show()
+    # Plot débit
+    # fig2, ax2 = plt.subplots(figsize=(12,10))
+    # pcm2 = ax2.pcolormesh(X, Y, rate_grid, shading='auto', cmap='plasma', vmin=50, vmax=40000)
+    # plt.colorbar(pcm2, ax=ax2, label='Débit Binaire (Mbps)')
+    # draw_obstacles(ax2, env)
+    # ax2.set(title=title2, xlabel='X (m)', ylabel='Y (m)')
+    # ax2.invert_yaxis(); ax2.set_aspect('auto')
+    # #plt.savefig(png2, format='jpeg')
+    # plt.show()
 
 if __name__ == '__main__':
     env = Environment()
-    start_time = time.time()
-    create_heatmap(env, width=1000, height=25, resolution=5)
-    end_time = time.time()
-    print(f"Heatmap Time: {end_time - start_time:.2f} seconds")
+    start = time.time()
+    res=5
+    # Heatmap sans path loss
+    create_heatmap(env, width=1000, height=22, resolution=res,
+                   with_pl=False)
+
+    # Heatmap avec path loss
+    create_heatmap(env, width=1000, height=22, resolution=res,
+                   with_pl=True)
+
+    end = time.time()
+    print(f"Total Heatmap Time: {end - start:.2f}s")
