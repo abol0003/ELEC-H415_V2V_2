@@ -10,7 +10,7 @@ class TestRayTracingWithEnvironment(unittest.TestCase):
     def setUp(self):
         self.environment = Environment()
         self.ray_tracing = RayTracing(self.environment)
-        self.ray_tracing.enableprint=True
+        self.ray_tracing.enableprint=True #to avoid lot of print
         self.colors = cycle(['b', 'g', 'r', 'c', 'm', 'y', 'k'])
 
     def plot_with_emitters_and_receivers(self, emitter, receiver):
