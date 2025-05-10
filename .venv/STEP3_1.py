@@ -4,94 +4,83 @@ from physics import calculer_angle_incidence, calculer_distance_parcourue
 from environment import Environment
 from position import Position
 
-
 def calculate_mpc_for_all_reflections():
-    # Initialisation de l'environnement et de RayTracing
+    # Initialize environment and ray tracer
     env = Environment()
     ray_tracing = RayTracing(env)
 
-    # Parcours de tous les récepteurs et émetteurs
+    # Loop through all receivers and emitters
     for receiver in env.receivers:
         for emitter in env.emitters:
-            print(f"--- Calcul des MPC pour l'émetteur {emitter.position} et le récepteur {receiver.position} ---")
+            print(f"--- Computing MPCs for emitter at {emitter.position} and receiver at {receiver.position} ---")
 
-            # Propagation directe (LOS)
+            # Direct path (LOS)
             direct_distance = ray_tracing.calc_distance(emitter.position, receiver.position)
             direct_angle = calculer_angle_incidence(emitter.position, receiver.position, env.obstacles[0])
-            direct_delay = direct_distance / 299792458 *10**(6) # Délai de propagation en secondes (vitesse de la lumière)
+            # Propagation delay in microseconds
+            direct_delay = direct_distance / 299_792_458 * 1e6
             print(
-                f"Direct Propagation (LOS): Angle d'incidence = {np.degrees(direct_angle):.4f}°, Délai = {direct_delay:.6f}µs")
+                f"Direct Path: Incidence angle = {np.degrees(direct_angle):.4f}°, Delay = {direct_delay:.6f} µs"
+            )
 
-            # Réflexion simple (1 réflexion)
+            # Single reflection (order 1)
             for obstacle in env.obstacles:
-                image_position = ray_tracing.compute_image_position(obstacle, emitter.position)
-                if obstacle.check_intersection(image_position, receiver.position):
-                    impact_point = obstacle.impact_point(image_position, receiver.position)
+                image_pos = ray_tracing.compute_image_position(obstacle, emitter.position)
+                if obstacle.check_intersection(image_pos, receiver.position):
+                    impact_point = obstacle.impact_point(image_pos, receiver.position)
                     reflex_angle = calculer_angle_incidence(emitter.position, impact_point, obstacle)
-                    reflex_distance = ray_tracing.calc_distance(image_position, receiver.position)
-                    reflex_delay = reflex_distance / 299792458 *10**(6) # Délai de propagation
+                    reflex_distance = ray_tracing.calc_distance(image_pos, receiver.position)
+                    reflex_delay = reflex_distance / 299_792_458 * 1e6
                     print(
-                        f"Reflection 1: Angle d'incidence = {np.degrees(reflex_angle):.4f}°, Délai = {reflex_delay:.6f}µs")
+                        f"Reflection 1: Incidence angle = {np.degrees(reflex_angle):.4f}°, Delay = {reflex_delay:.6f} µs"
+                    )
 
-            # Réflexion double (2 réflexions)
-            #double_reflex_power, double_reflex_volt = ray_tracing.double_reflex_and_power(emitter, receiver)
-            for obstacle1 in env.obstacles:
-                for obstacle2 in env.obstacles:
-                    if obstacle1 == obstacle2:
+            # Double reflection (order 2)
+            for obs1 in env.obstacles:
+                for obs2 in env.obstacles:
+                    if obs1 is obs2:
                         continue
-                    image_pos1 = ray_tracing.compute_image_position(obstacle1, emitter.position)
-                    image_pos2 = ray_tracing.compute_image_position(obstacle2, image_pos1)
-                    if obstacle2.check_intersection(image_pos2, receiver.position):
-                        impact_point2 = obstacle2.impact_point(image_pos2, receiver.position)
-                    if obstacle1.check_intersection(image_pos1,impact_point2):
-                        impact_point1 = obstacle1.impact_point(image_pos1,impact_point2)
-                        double_reflex_angle1 = calculer_angle_incidence(emitter.position, impact_point1, obstacle1)
-                        double_reflex_angle2 = calculer_angle_incidence(image_pos1, impact_point2, obstacle2)
-                        double_reflex_distance = ray_tracing.calc_distance(image_pos2, receiver.position)
-                        double_reflex_delay = double_reflex_distance / 299792458 *10**(6) # Délai de propagation
-                        print(
-                            f"Reflection 2 : angles d'incidence 1 = "
-                            f"{np.degrees(double_reflex_angle1):.4f}°, "
-                            f"Reflection 2 : angles d'incidence 2 = "
-                            f"{np.degrees(double_reflex_angle2):.4f}°, "
-                            f"délai = {double_reflex_delay:.6f} µs"
-                        )
+                    img1 = ray_tracing.compute_image_position(obs1, emitter.position)
+                    img2 = ray_tracing.compute_image_position(obs2, img1)
+                    if obs2.check_intersection(img2, receiver.position):
+                        imp2 = obs2.impact_point(img2, receiver.position)
+                        if obs1.check_intersection(img1, imp2):
+                            imp1 = obs1.impact_point(img1, imp2)
+                            angle1 = calculer_angle_incidence(emitter.position, imp1, obs1)
+                            angle2 = calculer_angle_incidence(img1, imp2, obs2)
+                            distance2 = ray_tracing.calc_distance(img2, receiver.position)
+                            delay2 = distance2 / 299_792_458 * 1e6
+                            print(
+                                f"Reflection 2: Incidence angles = {np.degrees(angle1):.4f}°, "
+                                f"{np.degrees(angle2):.4f}°, Delay = {delay2:.6f} µs"
+                            )
 
-            # Réflexion triple (3 réflexions)
-            #triple_reflex_power, triple_reflex_volt = ray_tracing.triple_reflex_and_power(emitter, receiver)
-            for obstacle1 in env.obstacles:
-                for obstacle2 in env.obstacles:
-                    for obstacle3 in env.obstacles:
-                        if obstacle1 == obstacle2 or obstacle2 == obstacle3:
+            # Triple reflection (order 3)
+            for obs1 in env.obstacles:
+                for obs2 in env.obstacles:
+                    for obs3 in env.obstacles:
+                        if obs1 is obs2 or obs2 is obs3:
                             continue
-                        image_pos1 = ray_tracing.compute_image_position(obstacle1, emitter.position)
-                        image_pos2 = ray_tracing.compute_image_position(obstacle2, image_pos1)
-                        image_pos3 = ray_tracing.compute_image_position(obstacle3, image_pos2)
-                        if obstacle3.check_intersection(image_pos3, receiver.position):
-                            impact_point3 = obstacle3.impact_point(image_pos3, receiver.position)
-                            if obstacle2.check_intersection(image_pos2, impact_point3):
-                                impact_point2 = obstacle2.impact_point(image_pos2, impact_point3)
-                                if obstacle1.check_intersection(image_pos1, impact_point2):
-                                    impact_point1 = obstacle1.impact_point(image_pos1, impact_point2)
-                                    triple_reflex_angle1 = calculer_angle_incidence(emitter.position, impact_point1,
-                                                                                   obstacle1)
-                                    triple_reflex_angle2 = calculer_angle_incidence(image_pos1, impact_point2,
-                                                                                    obstacle2)
-                                    triple_reflex_angle3 = calculer_angle_incidence(image_pos2, impact_point3,
-                                                                                   obstacle3)
-                                    triple_reflex_distance = ray_tracing.calc_distance(image_pos3,receiver.position)
-
-                                    triple_reflex_delay = triple_reflex_distance / 299792458 *10**(6) # Délai de propagation
+                        img1 = ray_tracing.compute_image_position(obs1, emitter.position)
+                        img2 = ray_tracing.compute_image_position(obs2, img1)
+                        img3 = ray_tracing.compute_image_position(obs3, img2)
+                        if obs3.check_intersection(img3, receiver.position):
+                            imp3 = obs3.impact_point(img3, receiver.position)
+                            if obs2.check_intersection(img2, imp3):
+                                imp2 = obs2.impact_point(img2, imp3)
+                                if obs1.check_intersection(img1, imp2):
+                                    imp1 = obs1.impact_point(img1, imp2)
+                                    angle1 = calculer_angle_incidence(emitter.position, imp1, obs1)
+                                    angle2 = calculer_angle_incidence(img1, imp2, obs2)
+                                    angle3 = calculer_angle_incidence(img2, imp3, obs3)
+                                    distance3 = ray_tracing.calc_distance(img3, receiver.position)
+                                    delay3 = distance3 / 299_792_458 * 1e6
                                     print(
-                                        f"Reflection 3 : angles d'incidence 1 = "
-                                        f"{np.degrees(triple_reflex_angle1):.4f}°, "
-                                        f"Reflection 3 : angles d'incidence 2 = "
-                                        f"{np.degrees(triple_reflex_angle2):.4f}°, "
-                                        f"Reflection 3 : angles d'incidence 3 = "
-                                        f"{np.degrees(triple_reflex_angle3):.4f}°, "
-                                        f"délai = {triple_reflex_delay:.6f} µs"
+                                        f"Reflection 3: Incidence angles = {np.degrees(angle1):.4f}°, "
+                                        f"{np.degrees(angle2):.4f}°, {np.degrees(angle3):.4f}°, "
+                                        f"Delay = {delay3:.6f} µs"
                                     )
 
-
-# Exécution du calcul pour chaque MPC avec propagation directe et réflexions
-calculate_mpc_for_all_reflections()
+# Execute MPC computation for all reflection orders
+if __name__ == '__main__':
+    calculate_mpc_for_all_reflections()

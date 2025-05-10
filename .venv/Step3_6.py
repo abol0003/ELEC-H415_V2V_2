@@ -1,8 +1,3 @@
-"""
-step3_6.py
-Calcul de la variabilité σ_L des résidus autour du modèle path-loss implémenté dans RayTracing
-Ajout : calcul théorique de σ_L selon l'équation 3.56 et tracé selon Figure 3.13
-"""
 import numpy as np
 from scipy import stats
 import matplotlib
@@ -14,149 +9,118 @@ from environment import Environment
 from raytracing import RayTracing
 from position import Position
 from receiver import Receiver
-
+from heatmap import create_heatmap
 
 def calculate_power(x, y, env, rt, use_pl=False):
     """
-    Calcule la puissance reçue (dBm) à la position (x, y) en utilisant le ray-tracer.
-    Si use_pl=True, active le path-loss interne.
-    """
-    """
-    Calcule la puissance de signal reçue en dBm à un point spécifique.
-    Utilise un récepteur fictif pour mesurer la puissance.
+    Calculate the received signal power (dBm) at position (x, y) using the ray tracer.
+    If use_pl=True, enable the internal path-loss model.
     """
     dummy_receiver = Receiver(Position(x, y), sensitivity=-70)
     env.receivers = [dummy_receiver]
     rt.use_path_loss = use_pl
     rt.ray_tracer()
     rt.use_path_loss = False
-    return dummy_receiver.received_power_dBm if dummy_receiver.received_power_dBm >= -90 else -90
+    received = dummy_receiver.received_power_dBm
+    return received if received >= -90 else -90
 
 
 def sigmaL_okumura_hata(f_MHz):
     """
-    Équation empirique 3.56 :
-    f_MHz : fréquence en MHz
+    Empirical equation (3.56) for shadow fading variability σ_L as a function of frequency.
     """
-    return 0.65 * (np.log10(f_MHz))**2 - 1.3 * np.log10(f_MHz) + 5.2
+    return 0.65 * np.log10(f_MHz)**2 - 1.3 * np.log10(f_MHz) + 5.2
 
 
 def main():
-    # Initialisation de l'environnement et du ray-tracer
-    env0 = Environment()
-    rt = RayTracing(env0)
+    # Initialize environment and ray tracer
+    env = Environment()
+    rt = RayTracing(env)
 
-    # Récupération de l'émetteur principal pour position de référence
-    emitter = env0.emitters[0]
-    x0, y0 = emitter.position.x, emitter.position.y
+    # Resolution and grid setup (meters)
+    res = 5
+    width, height = 1000, 22
+    xs = np.arange(0, width, res)
+    ys = np.arange(0, height, res)
+    X, Y = np.meshgrid(xs, ys)
 
-    # Génération des positions sur la ligne tous les 5 m
-    max_distance = 1000+ 1e-9 # en mètrese-
-    distances = np.arange(0, max_distance, 5)
-    positions = [(x0 + d, y0) for d in distances]
+    # Heatmaps of received power
+    P_measured = create_heatmap(env, width=width, height=height, resolution=res, with_pl=False)
+    P_modeled  = create_heatmap(env, width=width, height=height, resolution=res, with_pl=True)
 
-    # Calcul multithreaded de la puissance sans et avec path-loss
-    func_no_pl = partial(calculate_power, env=env0, rt=rt, use_pl=False)
-    func_pl = partial(calculate_power, env=env0, rt=rt, use_pl=True)
-    with ThreadPoolExecutor() as executor:
-        P_mesuree = np.array(list(executor.map(lambda p: func_no_pl(p[0], p[1]), positions)))
-    with ThreadPoolExecutor() as executor:
-        P_modele = np.array(list(executor.map(lambda p: func_pl(p[0], p[1]), positions)))
+    # Compute residuals between measured and modeled
+    residues = P_measured - P_modeled
 
-    # Calcul des résidus
-    residues = P_mesuree - P_modele
+    # Estimate σ_L from residuals (sample standard deviation)
+    sigma_L_measured = np.std(residues, ddof=1)
+    print(f"Estimated σ_L (measured): {sigma_L_measured:.2f} dB")
 
-    # Estimation de σ_L (mesuré)
-    sigma_L_mesure = np.std(residues, ddof=1)
-    print(f"σ_L estimé (mesuré) : {sigma_L_mesure:.2f} dB")
-
-    # Test de normalité (Kolmogorov-Smirnov)
+    # Perform Kolmogorov-Smirnov test for normality of residuals
     mu, std = np.mean(residues), np.std(residues, ddof=1)
-    stat, p_value = stats.kstest(residues, 'norm', args=(mu, std))
-    print(f"KS test : stat={stat:.3f}, p-value={p_value:.3f}")
+    stat, p_value = stats.kstest(residues.ravel(), 'norm', args=(mu, std))
+    stat = float(stat)
+    p_value = float(p_value)
+    print(f"KS test: statistic={stat:.3f}, p-value={p_value:.3f}")
 
-    # Tracé : histogramme des résidus + densité normale
+    # Plot histogram of residuals with fitted normal density
     plt.figure(figsize=(8, 5))
-    plt.hist(residues, bins=20, density=True, alpha=0.7, label='Résidus')
-    x = np.linspace(residues.min(), residues.max(), 200)
-    plt.plot(x, stats.norm.pdf(x, mu, std), linewidth=2, label=f'N({mu:.2f},{std:.2f}²)')
+    plt.hist(residues.ravel(), bins=20, density=True, alpha=0.7, label='Residuals')
+    x_plot = np.linspace(residues.min(), residues.max(), 200)
+    plt.plot(x_plot, stats.norm.pdf(x_plot, mu, std), linewidth=2,
+             label=f'N({mu:.2f}, {std:.2f}\u00b2)')
     plt.xlabel('ΔP (dB)')
-    plt.ylabel('Densité')
-    plt.title('Histogramme des résidus et densité normale')
+    plt.ylabel('Density')
+    plt.title('Histogram of Residuals and Normal PDF')
     plt.legend()
     plt.grid(True)
     plt.show()
 
-        # Tracé : évolution de σ_L selon la distance
-    window_size = 5
-    centers = []
-    sigmas = []
-    for i in range(len(residues) - window_size + 1):
-        centers.append(np.mean(distances[i:i+window_size]))
-        sigmas.append(np.std(residues[i:i+window_size], ddof=1))
+    # Compute and bin distances from emitter, then compute σ_L per distance bin
+    emitter_pos = env.emitters[0].position
+    distances = np.sqrt((X - emitter_pos.x)**2 + (Y - emitter_pos.y)**2).ravel()
+    resid_flat = residues.ravel()
+
+    # Define radial bins (e.g., 20 bins)
+    num_bins = 20
+    bins = np.linspace(distances.min(), distances.max(), num_bins + 1)
+    bin_centers = (bins[:-1] + bins[1:]) / 2
+    sigma_per_bin = []
+
+    # Compute σ_L for each bin
+    for i in range(num_bins):
+        mask = (distances >= bins[i]) & (distances < bins[i+1])
+        if np.any(mask):
+            sigma_per_bin.append(std if not np.any(mask) else np.std(resid_flat[mask], ddof=1))
+        else:
+            sigma_per_bin.append(np.nan)
+
+    # Plot σ_L vs distance bins
     plt.figure(figsize=(8, 5))
-    plt.plot(centers, sigmas, marker='o')
-    plt.xlabel('Distance depuis émetteur (m)')
+    plt.plot(bin_centers, sigma_per_bin, marker='o')
+    plt.xlabel('Distance from Emitter (m)')
     plt.ylabel('σ_L (dB)')
-    plt.title('Évolution de σ_L selon la distance')
+    plt.title('σ_L vs. Distance Bins')
     plt.grid(True)
     plt.show()
 
-    #     # --- Heatmaps de la puissance reçue avec et sans path-loss ---
-    # # Définir la zone de calcul (à ajuster selon l'environnement)
-    # width, height = 1000, 20  # en mètres
-    # res = 5  # résolution en m
-    # xs = np.arange(0, width, res)
-    # ys = np.arange(0, height, res)
-    # Xg, Yg = np.meshgrid(xs, ys)
-    # grid_positions = [(x, y) for x, y in zip(Xg.ravel(), Yg.ravel())]
-    #
-    # # Calcul multithreaded puissance reçue
-    # func_no_pl_grid = partial(calculate_power, env=env0, rt=rt, use_pl=False)
-    # func_pl_grid = partial(calculate_power, env=env0, rt=rt, use_pl=True)
-    # with ThreadPoolExecutor() as executor:
-    #     P_no_pl = np.array(list(executor.map(lambda p: func_no_pl_grid(p[0], p[1]), grid_positions)))
-    # with ThreadPoolExecutor() as executor:
-    #     P_pl = np.array(list(executor.map(lambda p: func_pl_grid(p[0], p[1]), grid_positions)))
-    #
-    # P_no_pl_grid = P_no_pl.reshape(ys.size, xs.size)
-    # P_pl_grid = P_pl.reshape(ys.size, xs.size)
-    #
-    # # Heatmap sans path loss
-    # fig, ax = plt.subplots(figsize=(12, 4))
-    # pcm = ax.pcolormesh(Xg, Yg, P_no_pl_grid, shading='auto', cmap='viridis')
-    # plt.colorbar(pcm, ax=ax, label='Puissance reçue (dBm)')
-    # ax.set(title='Heatmap puissance reçue sans path-loss', xlabel='X (m)', ylabel='Y (m)')
-    # ax.invert_yaxis()
-    # plt.show()
-    #
-    # # Heatmap avec path loss
-    # fig, ax = plt.subplots(figsize=(12, 4))
-    # pcm = ax.pcolormesh(Xg, Yg, P_pl_grid, shading='auto', cmap='viridis')
-    # plt.colorbar(pcm, ax=ax, label='Puissance reçue (dBm)')
-    # ax.set(title='Heatmap puissance reçue avec path-loss', xlabel='X (m)', ylabel='Y (m)')
-    # ax.invert_yaxis()
-    # plt.show()
+    # Theoretical σ_L vs frequency according to Okumura-Hata equation (3.56)
+    f_MHz = np.linspace(1, 20000, 200)  # 1 MHz to 20 GHz
+    f_meas = 5900                       # 5.9 GHz
+    sigma_theoretical = sigmaL_okumura_hata(f_MHz)
 
-        # --- Calcul (théorique) de σ_L vs fréquence selon eq.3.56 et tracé Figure 3.13 ---
-    # Fréquences théoriques et fréquence mesurée
-    f_MHz = np.linspace(1, 20000, 200)  # 100 MHz à 6 GHz
-    f_meas = 5900  # 5.9 GHz
-    sigma_theorique = sigmaL_okumura_hata(f_MHz)
-    sigma_theorique = sigmaL_okumura_hata(f_MHz)
     plt.figure(figsize=(8, 5))
-    plt.plot(f_MHz, sigma_theorique, linewidth=2, label='Eq. 3.56')
-    plt.scatter(f_MHz, sigma_theorique, s=10)
-        # Comparaison avec le modèle mesuré
-    # Point mesuré spécifique à 5.9 GHz
-    plt.scatter([f_meas], [sigma_L_mesure], color='black', s=50, marker='x', label=f'σ_L mesuré @ {f_meas/1000:.1f} GHz')
-    plt.xlabel('Fréquence (MHz)')
+    plt.plot(f_MHz, sigma_theoretical, linewidth=2, label='Eq. 3.56')
+    plt.scatter(f_MHz, sigma_theoretical, s=10)
+    plt.scatter([f_meas], [sigma_L_measured], s=50, marker='x',
+                label=f'Measured σ_L @ {f_meas/1000:.1f} GHz')
+    plt.xlabel('Frequency (MHz)')
     plt.ylabel('σ_L (dB)')
-    plt.title('Figure 3.13 – Variabilité σ_L selon la fréquence')
+    plt.title('σ_L Variability vs Frequency (Figure 3.13)')
     plt.xlim(f_MHz.min(), f_MHz.max())
     plt.legend()
     plt.grid(True)
     plt.show()
 
 if __name__ == '__main__':
+
     main()

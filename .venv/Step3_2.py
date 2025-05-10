@@ -3,20 +3,21 @@ from environment import Environment
 from raytracing import RayTracing
 import matplotlib.pyplot as plt
 import matplotlib
-matplotlib.use('TkAgg')  # Utiliser le backend TkAgg pour l'affichage
+matplotlib.use('TkAgg')  # Use TkAgg backend for display
 from itertools import cycle
 
 class TestRayTracingWithEnvironment(unittest.TestCase):
     def setUp(self):
         self.environment = Environment()
         self.ray_tracing = RayTracing(self.environment)
+        self.ray_tracing.enableprint=True
         self.colors = cycle(['b', 'g', 'r', 'c', 'm', 'y', 'k'])
 
     def plot_with_emitters_and_receivers(self, emitter, receiver):
         plt.scatter(emitter.position.x, emitter.position.y,
-                    color='blue', s=100, edgecolor='black', label='Émetteur')
+                    color='blue', s=100, edgecolor='black', label='Emitter')
         plt.scatter(receiver.position.x, receiver.position.y,
-                    color='cyan', s=100, edgecolor='black', label='Récepteur')
+                    color='cyan', s=100, edgecolor='black', label='Receiver')
 
     def plot_obstacles(self):
         for obstacle in self.environment.obstacles:
@@ -38,27 +39,27 @@ class TestRayTracingWithEnvironment(unittest.TestCase):
             plt.savefig(filename, format='jpeg')
 
     def test_direct_propagation(self):
-        print("\nTest de la propagation directe :")
+        print("\nTesting direct line-of-sight propagation:")
         for emitter in self.environment.emitters:
             for receiver in self.environment.receivers:
                 power, volt = self.ray_tracing.direct_propagation(emitter, receiver)
-                print(f"Émetteur à {emitter.position}, Récepteur à {receiver.position}, "
-                      f"Puissance totale reçue après LOS : {power} W")
-                print(f"Voltage reçue : {volt} V")
+                print(f"Emitter at {emitter.position}, Receiver at {receiver.position}, "
+                      f"Received LOS power: {power} W")
+                print(f"Received voltage: {volt} V")
                 self.assertIsNotNone(power)
                 segments = [((emitter.position, receiver.position), next(self.colors))]
                 self.plot_with_emitters_and_receivers(emitter, receiver)
                 self._plot_segments(segments)
-        self._finalize_plot('Propagation directe des rayons', 'direct_propagation.jpeg')
+        self._finalize_plot('Direct Ray Propagation', 'direct_propagation.jpeg')
 
     def test_reflection(self):
-        print("\nTest de la réflexion simple :")
+        print("\nTesting single reflection propagation:")
         for emitter in self.environment.emitters:
             for receiver in self.environment.receivers:
                 p, v = self.ray_tracing.reflex_and_power(emitter, receiver)
-                print(f"Émetteur à {emitter.position}, Récepteur à {receiver.position}, "
-                      f"Puissance reçue après réflexion simple : {p} W")
-                print(f"Voltage reçue : {v} V")
+                print(f"Emitter at {emitter.position}, Receiver at {receiver.position}, "
+                      f"Power after single reflection: {p} W")
+                print(f"Received voltage: {v} V")
                 self.assertIsNotNone(p)
                 segments = []
                 for obstacle in self.environment.obstacles:
@@ -71,16 +72,16 @@ class TestRayTracingWithEnvironment(unittest.TestCase):
                             segments.append(((imp, receiver.position), c))
                 self.plot_with_emitters_and_receivers(emitter, receiver)
                 self._plot_segments(segments)
-        self._finalize_plot('Réflexion simple des rayons', 'simple_reflection.jpeg')
+        self._finalize_plot('Single Reflection Rays', 'simple_reflection.jpeg')
 
     def test_double_reflection(self):
-        print("\nTest de la réflexion double :")
+        print("\nTesting double reflection propagation:")
         for emitter in self.environment.emitters:
             for receiver in self.environment.receivers:
                 p, v = self.ray_tracing.double_reflex_and_power(emitter, receiver)
-                print(f"Émetteur à {emitter.position}, Récepteur à {receiver.position}, "
-                      f"Puissance reçue après réflexion double : {p} W")
-                print(f"Voltage reçue : {v} V")
+                print(f"Emitter at {emitter.position}, Receiver at {receiver.position}, "
+                      f"Power after double reflection: {p} W")
+                print(f"Received voltage: {v} V")
                 self.assertIsNotNone(p)
                 segments = []
                 for o1 in self.environment.obstacles:
@@ -102,16 +103,16 @@ class TestRayTracingWithEnvironment(unittest.TestCase):
                                     ])
                 self.plot_with_emitters_and_receivers(emitter, receiver)
                 self._plot_segments(segments)
-        self._finalize_plot('Doubles réflexions des rayons', 'double_reflection.jpeg')
+        self._finalize_plot('Double Reflection Rays', 'double_reflection.jpeg')
 
     def test_triple_reflection(self):
-        print("\nTest de la réflexion triple :")
+        print("\nTesting triple reflection propagation:")
         for emitter in self.environment.emitters:
             for receiver in self.environment.receivers:
                 p, v = self.ray_tracing.triple_reflex_and_power(emitter, receiver)
-                print(f"Émetteur à {emitter.position}, Récepteur à {receiver.position}, "
-                      f"Puissance reçue après réflexion triple : {p} W")
-                print(f"Voltage reçue : {v} V")
+                print(f"Emitter at {emitter.position}, Receiver at {receiver.position}, "
+                      f"Power after triple reflection: {p} W")
+                print(f"Received voltage: {v} V")
                 self.assertIsNotNone(p)
                 segments = []
                 for o1 in self.environment.obstacles:
@@ -140,10 +141,10 @@ class TestRayTracingWithEnvironment(unittest.TestCase):
                                             ])
                 self.plot_with_emitters_and_receivers(emitter, receiver)
                 self._plot_segments(segments)
-        self._finalize_plot('Triple réflexion des rayons')
+        self._finalize_plot('Triple Reflection Rays')
 
     def test_combined_reflections(self):
-        print("\nTest combiné (direct + 1R + 2R + 3R) :")
+        print("\nTesting combined LOS and reflections:")
         for emitter in self.environment.emitters:
             for receiver in self.environment.receivers:
                 p_los, v_los = self.ray_tracing.direct_propagation(emitter, receiver)
@@ -152,8 +153,8 @@ class TestRayTracingWithEnvironment(unittest.TestCase):
                 p3, v3 = self.ray_tracing.triple_reflex_and_power(emitter, receiver)
                 p_total = p_los + p1 + p2 + p3
                 v_total = v_los + v1 + v2 + v3
-                print(f"Émetteur {emitter.position}, Récepteur {receiver.position} -> "
-                      f"Puissance totale = {p_total:.6e} W, Tension totale = {v_total:.6e} V")
+                print(f"Emitter {emitter.position}, Receiver {receiver.position} -> "
+                      f"Total power = {p_total:.6e} W, Total voltage = {v_total:.6e} V")
                 self.assertIsNotNone(p_total)
                 self.assertIsNotNone(v_total)
                 self.assertGreaterEqual(p_total, p_los)

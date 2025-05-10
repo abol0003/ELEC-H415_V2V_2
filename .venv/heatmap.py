@@ -94,19 +94,21 @@ def create_heatmap(env, width, height, resolution, with_pl=False):
     valid = ~np.isnan(power_grid)
     # Titre et noms de fichiers
     suffix = '_PL' if with_pl else ''
-    png1 = f'dBmheat{suffix}.jpeg'
-    png2 = f'Mbpsheat{suffix}.jpeg'
-    title1 = 'Heatmap de la Puissance Reçue (dBm)' + (' avec path loss' if with_pl else '')
-    title2 = 'Heatmap du Débit Binaire (Mbps)' + (' avec path loss' if with_pl else '')
+    filename = f'received_power_heatmap{suffix}.png'
+    title = f'Received Power Heatmap (dBm){" with Path Loss" if with_pl else ""}'
 
-    # Plot puissance
-    fig1, ax1 = plt.subplots(figsize=(12,10))
-    pcm = ax1.pcolormesh(X, Y, power_grid, shading='auto', cmap='viridis', vmin=-71, vmax=np.max(power_grid[valid]))
-    plt.colorbar(pcm, ax=ax1, label='Puissance Reçue (dBm)')
-    draw_obstacles(ax1, env)
-    ax1.set(title=title1, xlabel='X (m)', ylabel='Y (m)')
-    ax1.invert_yaxis(); ax1.set_aspect('auto')
-    #plt.savefig(png1, format='jpeg')
+    fig, ax = plt.subplots(figsize=(12, 10))
+    pcm = ax.pcolormesh(X, Y, power_grid, shading='auto', cmap='viridis',
+                        vmin=-70, vmax=np.nanmax(power_grid))
+    fig.colorbar(pcm, ax=ax, label='Received Power (dBm)')
+    draw_obstacles(ax, env)
+    ax.set_title(title)
+    ax.set_xlabel('X (m)')
+    ax.set_ylabel('Y (m)')
+    #ax.invert_yaxis()
+    plt.tight_layout()
+    plt.savefig(filename, dpi=300)
+    print(f"Saved heatmap: {filename}")
     plt.show()
 
     # Plot débit
@@ -118,6 +120,7 @@ def create_heatmap(env, width, height, resolution, with_pl=False):
     # ax2.invert_yaxis(); ax2.set_aspect('auto')
     # #plt.savefig(png2, format='jpeg')
     # plt.show()
+    return power_grid
 
 if __name__ == '__main__':
     env = Environment()
