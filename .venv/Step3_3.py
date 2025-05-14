@@ -4,6 +4,7 @@ matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 from environment import Environment
 from raytracing import RayTracing
+from position import Position
 
 # Speed of light (m/s)
 c = 299_792_458
@@ -108,7 +109,7 @@ def main():
     emitter = env.emitters[0]
     receiver = env.receivers[0]
 
-    mode = [0, 1]  # [MPCs, TX variation]
+    mode = [1, 2]  # [MPCs, TX variation]
 
     # Step 1 & 2: MPCs
     if mode[0] == 1:
@@ -121,6 +122,7 @@ def main():
     if mode[1] == 1:
         # Define TX power range
         P_TX_vals = np.linspace(0.01, 1.0, 100)
+        PRX_total2 = []
         PRX_total = []
 
         # Friis parameters
@@ -128,18 +130,24 @@ def main():
         wavelength = c / rt.frequency
         d0 = rt.calc_distance(emitter.position, receiver.position)
 
-        # Compute received power for each TX
+        # Compute received power for each TX /!\ be carefull on the position of the emitter
         for P in P_TX_vals:
             rt.P_TX = P
-            p0, _ = rt.direct_propagation(emitter, receiver)
-            PRX_total.append(p0)
+            p_los, v0 = rt.direct_propagation(emitter, receiver)
+            p1, v1 = rt.reflex_and_power(emitter, receiver)
+            p2, v2 = rt.double_reflex_and_power(emitter, receiver)
+            p3, v3 = rt.triple_reflex_and_power(emitter, receiver)
+            Power = (np.abs(v0 + v1 + v2 + v3) ** 2) / (8 * rt.Ra)
+            PRX_total2.append(p_los+p1+p2+p3)
+            PRX_total.append(Power)  #real one taking interference
 
         # Compute Friis received power
         PRX_friis = P_TX_vals * G**2 * (wavelength / (4 * np.pi * d0))**2
 
         # Plot results
         plt.figure(figsize=(8, 5))
-        plt.plot(P_TX_vals, PRX_total, label='Ray-Tracing (0–3 reflections)')
+        plt.plot(P_TX_vals, PRX_total, label='Real Values')
+        plt.plot(P_TX_vals, PRX_total2, label='Ray-Tracing ')
         plt.plot(P_TX_vals, PRX_friis, '--', label='Friis Model')
         plt.xlabel('Transmit Power $P_{TX}$ (W)')
         plt.ylabel('Received Power $P_{RX}$ (W)')
@@ -152,6 +160,47 @@ def main():
         plt.savefig(outfile)
         plt.show()
         print(f"Figure saved as: {outfile}")
+    # Step 3b: PRX vs distance at fixed TX power (échelle log–log)
+    if mode[1] == 2:
+        P_fixed = rt.P_TX
+        G = rt.G_TX
+        wavelength = c / rt.frequency
+
+        # Balayage des distances (éviter 0 pour log)
+        dist_vals = np.logspace(0, np.log10(1000.0), 1000)
+        PRX_rt = []
+        PRX_rt2=[]
+        PRX_friis = []
+
+        for d in dist_vals:
+            rx_pos = Position(emitter.position.x + d, emitter.position.y)
+            receiver.position = rx_pos
+
+            p_los, v0 = rt.direct_propagation(emitter, receiver)
+            p1, v1 = rt.reflex_and_power(emitter,receiver)
+            p2,v2=rt.double_reflex_and_power(emitter,receiver)
+            p3,v3=rt.triple_reflex_and_power(emitter,receiver)
+            Power = (np.abs(v0+v1+v2+v3) ** 2) / (8 * rt.Ra)
+            PRX_rt.append(p_los+p1+p2+p3) #averaging by raytracing
+            PRX_rt2.append(Power) #real one taking interference
+            PRX_friis.append(
+                P_fixed * G ** 2 * (wavelength / (4 * np.pi * d)) ** 2
+            )
+
+        plt.figure(figsize=(8, 5))
+        plt.semilogy(dist_vals, PRX_rt, label='Ray-Tracing')
+        plt.semilogy(dist_vals, PRX_rt2, label='Real values')
+        plt.semilogy(dist_vals, PRX_friis, '--', label='Friis Model')
+        plt.xlabel('Distance (m)')
+        plt.ylabel('Received Power $P_{RX}$ (W)')
+        plt.title('Step 3.3b – $P_{RX}$ vs Distance ')
+        plt.legend()
+        plt.grid(which='both', linestyle=':', alpha=0.7)
+        plt.tight_layout()
+        plt.savefig('prx_vs_distance_loglog.png')
+        plt.show()
+        print("Figure saved as: prx_vs_distance_loglog.png")
+
 
 if __name__ == '__main__':
     main()

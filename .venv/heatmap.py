@@ -10,6 +10,8 @@ from environment import Environment
 from raytracing import RayTracing
 from position import Position
 from receiver import Receiver
+import multiprocessing
+
 
 def draw_obstacles(ax, env):
     """
@@ -42,14 +44,10 @@ def dbm_to_mbps(dBm):
         return ((dBm + 90) * (39950 / 50) + 50)
 
 def calculate_power_at_point(env, ray_tracer, x, y):
-    """
-    Calcule la puissance de signal reçue en dBm à un point spécifique.
-    Utilise un récepteur fictif pour mesurer la puissance.
-    """
-    dummy_receiver = Receiver(Position(x, y), sensitivity=-70)
+    dummy_receiver = Receiver(Position(x, y), sensitivity=-200)
     env.receivers = [dummy_receiver]
     ray_tracer.ray_tracer()
-    return dummy_receiver.received_power_dBm if dummy_receiver.received_power_dBm >= -90 else -90
+    return dummy_receiver.received_power_dBm #if dummy_receiver.received_power_dBm >= dummy_receiver.sensitivity else dummy_receiver.sensitivity
 
 def calculate_average_received_power(env, ray_tracer, width, height):
     """
@@ -59,47 +57,36 @@ def calculate_average_received_power(env, ray_tracer, width, height):
     total_power = 0
     count = 0
     for pos in dummy_positions:
-        dummy_receiver = Receiver(Position(pos[0], pos[1]), sensitivity=-90)
+        dummy_receiver = Receiver(Position(pos[0], pos[1]), sensitivity=-70)
         env.receivers = [dummy_receiver]
         ray_tracer.ray_tracer()
-        if dummy_receiver.received_power_dBm and dummy_receiver.received_power_dBm >= -90:
+        if dummy_receiver.received_power_dBm and dummy_receiver.received_power_dBm >= -70:
             total_power += dummy_receiver.received_power_dBm
             count += 1
     return total_power / count if count else -np.inf
 
 def create_heatmap(env, width, height, resolution, with_pl=False):
-    """
-    Crée une heatmap (puissance et débit) en mode sans ou avec path loss.
-    :param with_pl: si True, active ray_tracer_with_path_loss()
-    :param pl_exponent, pl_d0: paramètres du modèle log-distance
-    """
     x = np.arange(0, width, resolution)
     y = np.arange(0, height, resolution)
     X, Y = np.meshgrid(x, y)
 
     # Instancie le ray tracer
     rt = RayTracing(env)
-
-    # Active path loss si demandé
-    if with_pl:
-        rt.use_path_loss = True
-
+    receiver=Receiver
 
     # Fonction pour un point
     func = partial(calculate_power_at_point, env, rt)
     with ProcessPoolExecutor() as executor:
         power = np.array(list(executor.map(func, X.ravel(), Y.ravel())))
     power_grid = power.reshape(X.shape)
-    # rate_grid = np.vectorize(dbm_to_mbps)(power_grid)
-    valid = ~np.isnan(power_grid)
-    # Titre et noms de fichiers
-    suffix = '_PL' if with_pl else ''
-    filename = f'received_power_heatmap{suffix}.png'
-    title = f'Received Power Heatmap (dBm){" with Path Loss" if with_pl else ""}'
+    average_power = calculate_average_received_power(env, rt, width, height)
+    print(f"Average Received Power: {average_power:.2f} dBm")
+    filename = f'received_power_heatmap.png'
+    title = f'Received Power Heatmap (dBm)'
 
     fig, ax = plt.subplots(figsize=(12, 10))
     pcm = ax.pcolormesh(X, Y, power_grid, shading='auto', cmap='viridis',
-                        vmin=-70, vmax=np.nanmax(power_grid))
+                        vmin=np.nanmin(power_grid), vmax=np.nanmax(power_grid))
     fig.colorbar(pcm, ax=ax, label='Received Power (dBm)')
     draw_obstacles(ax, env)
     ax.set_title(title)
@@ -125,14 +112,12 @@ def create_heatmap(env, width, height, resolution, with_pl=False):
 if __name__ == '__main__':
     env = Environment()
     start = time.time()
-    res=5
-    # Heatmap sans path loss
-    create_heatmap(env, width=1000, height=22, resolution=res,
+    res=1
+   # multiprocessing.freeze_support()  # Windows only, safe elsewhere
+    create_heatmap(env, width=1000, height=21, resolution=res,
                    with_pl=False)
 
-    # Heatmap avec path loss
-    create_heatmap(env, width=1000, height=22, resolution=res,
-                   with_pl=True)
+
 
     end = time.time()
     print(f"Total Heatmap Time: {end - start:.2f}s")

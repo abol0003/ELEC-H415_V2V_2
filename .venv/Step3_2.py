@@ -3,6 +3,7 @@ from environment import Environment
 from raytracing import RayTracing
 import matplotlib.pyplot as plt
 import matplotlib
+import numpy as np
 matplotlib.use('TkAgg')  # Use TkAgg backend for display
 from itertools import cycle
 
@@ -43,9 +44,11 @@ class TestRayTracingWithEnvironment(unittest.TestCase):
         for emitter in self.environment.emitters:
             for receiver in self.environment.receivers:
                 power, volt = self.ray_tracing.direct_propagation(emitter, receiver)
+                V=np.abs(volt)
+                phi=np.degrees(np.angle(volt))
                 print(f"Emitter at {emitter.position}, Receiver at {receiver.position}, "
                       f"Received LOS power: {power} W")
-                print(f"Received voltage: {volt} V")
+                print(f"Received voltage: {V*(10**6)} µV with phase:{phi}°")
                 self.assertIsNotNone(power)
                 segments = [((emitter.position, receiver.position), next(self.colors))]
                 self.plot_with_emitters_and_receivers(emitter, receiver)
@@ -57,9 +60,11 @@ class TestRayTracingWithEnvironment(unittest.TestCase):
         for emitter in self.environment.emitters:
             for receiver in self.environment.receivers:
                 p, v = self.ray_tracing.reflex_and_power(emitter, receiver)
+                V = np.abs(v)
+                phi = np.degrees(np.angle(v))
                 print(f"Emitter at {emitter.position}, Receiver at {receiver.position}, "
                       f"Power after single reflection: {p} W")
-                print(f"Received voltage: {v} V")
+                print(f"Received voltage: {V*(10**6)} µV with phase:{phi}°")
                 self.assertIsNotNone(p)
                 segments = []
                 for obstacle in self.environment.obstacles:
@@ -79,9 +84,11 @@ class TestRayTracingWithEnvironment(unittest.TestCase):
         for emitter in self.environment.emitters:
             for receiver in self.environment.receivers:
                 p, v = self.ray_tracing.double_reflex_and_power(emitter, receiver)
+                V = np.abs(v)
+                phi = np.degrees(np.angle(v))
                 print(f"Emitter at {emitter.position}, Receiver at {receiver.position}, "
                       f"Power after double reflection: {p} W")
-                print(f"Received voltage: {v} V")
+                print(f"Received voltage: {V*(10**6)} µV with phase:{phi}°")
                 self.assertIsNotNone(p)
                 segments = []
                 for o1 in self.environment.obstacles:
@@ -110,9 +117,11 @@ class TestRayTracingWithEnvironment(unittest.TestCase):
         for emitter in self.environment.emitters:
             for receiver in self.environment.receivers:
                 p, v = self.ray_tracing.triple_reflex_and_power(emitter, receiver)
+                V = np.abs(v)
+                phi = np.degrees(np.angle(v))
                 print(f"Emitter at {emitter.position}, Receiver at {receiver.position}, "
                       f"Power after triple reflection: {p} W")
-                print(f"Received voltage: {v} V")
+                print(f"Received voltage: {V*(10**6)} µV with phase:{phi}°")
                 self.assertIsNotNone(p)
                 segments = []
                 for o1 in self.environment.obstacles:
@@ -153,8 +162,10 @@ class TestRayTracingWithEnvironment(unittest.TestCase):
                 p3, v3 = self.ray_tracing.triple_reflex_and_power(emitter, receiver)
                 p_total = p_los + p1 + p2 + p3
                 v_total = v_los + v1 + v2 + v3
+                V=np.abs(v_total)
+                phi=np.degrees(np.angle(v_total))
                 print(f"Emitter {emitter.position}, Receiver {receiver.position} -> "
-                      f"Total power = {p_total:.6e} W, Total voltage = {v_total:.6e} V")
+                      f"Total power = {p_total:.6e} W, Total voltage = {V*(10**6):.4f} µV with phase:{phi:.4f} °.")
                 self.assertIsNotNone(p_total)
                 self.assertIsNotNone(v_total)
                 self.assertGreaterEqual(p_total, p_los)

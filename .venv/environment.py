@@ -69,8 +69,6 @@ class Environment:
         Initialise les récepteurs dans l'environnement.
         """
         self.receivers.append(Receiver(Position(110, 10), -70))
-        #self.receivers.append(Receiver(Position(12, 6), -90, 1.7))
-
     def draw(self, canvas, scale=50):
         """
         Dessine les obstacles, émetteurs et récepteurs sur un canvas Tkinter.

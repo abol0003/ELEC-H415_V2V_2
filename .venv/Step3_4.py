@@ -8,18 +8,17 @@ from raytracing import RayTracing
 from physics import calculer_coeff_reflexion
 
 # Speed of light (m/s)
-c = 299_792_458
+c = 299792458
 
 def compute_k_factor(rt, emitter, receiver):
     """
     Compute the linear Rician K-factor for a given receiver location.
-    K = power in direct path / sum of reflected powers.
     """
     P0, _ = rt.direct_propagation(emitter, receiver)
     P1, _ = rt.reflex_and_power(emitter, receiver)
     P2, _ = rt.double_reflex_and_power(emitter, receiver)
     P3, _ = rt.triple_reflex_and_power(emitter, receiver)
-    return P0 / (P1 + P2 + P3)
+    return P0**2 / (P1[0]**2+P1[1]**2 + P2[0]**2 +P2[1]**2 + P3[0]**2+ P3[1]**2)
 
 def rice_pdf(r, K, omega=1.0):
     """
@@ -42,10 +41,10 @@ def main():
     # ----------------------
     # Plot 1: K-Factor vs Distance
     # ----------------------
-    distances = np.linspace(5, 200, 100)
+    distances = np.linspace(0, 1000, 1000)
     K_vals = []
     for d in distances:
-        # Move receiver along x-axis at distance d
+        rt.rice=True
         receiver.position.x = emitter.position.x + d
         K_vals.append(compute_k_factor(rt, emitter, receiver))
 
@@ -53,8 +52,8 @@ def main():
     K_dB = 10 * np.log10(K_vals)
 
     plt.figure(figsize=(8, 5))
-    plt.plot(distances, K_vals, label='K (linear)')
-    plt.plot(distances, K_dB, '--', label='K (dB)')
+    #plt.plot(distances, K_vals, label='K (linear)')
+    plt.plot(distances, K_dB, '-', label='K (dB)')
     plt.xlabel('Transmitter–Receiver Distance (m)')
     plt.ylabel('Rician K-Factor')
     plt.title('Rician K-Factor Variation with Distance')

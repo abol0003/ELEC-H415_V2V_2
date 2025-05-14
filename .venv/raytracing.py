@@ -19,11 +19,9 @@ class RayTracing:
         Z0 = np.sqrt(mu0 / eps0)
         self.G_TX = 16/(3*np.pi) #(np.pi * Z0 * (np.abs(self.h_e)) ** 2) / (self.Ra * (lamb ** 2))
         self.P_TX = 0.1 #Watt
-        self.use_path_loss = False
         self.pl_exponent   = 2
-        self.pl_d0         = 1
         self.enableprint=False
-
+        self.rice= False
 
 
     def compute_image_position(self, obstacle, source_position):
@@ -54,10 +52,10 @@ class RayTracing:
         #     Voltage =0.5*self.h_e*Elec_field # this is VRX and not Voc
         #     Power = ((self.h_e * np.abs(Elec_field)) ** 2) / (8 * self.Ra)
         # else:
-        Elec_field = (coefficient * np.sqrt(60 * self.G_TX * self.P_TX) * np.exp(1j * (-distance) * self.beta)) / distance
-        Voltage =0.5*self.h_e*Elec_field # this is VRX and not Voc
+        Elec_field = coefficient * np.sqrt(60 * self.G_TX * self.P_TX) * np.exp(1j * (-distance) * self.beta) / distance
+        Voltage =-0.5*self.h_e*Elec_field # this is VRX and not Voc
         Power = ((self.h_e * np.abs(Elec_field)) ** 2) / (8 * self.Ra)
-
+        if Power > self.P_TX: Power = self.P_TX
         return Elec_field, Power, Voltage
 
     def direct_propagation(self, emitter, receiver):
@@ -80,6 +78,8 @@ class RayTracing:
          """
         Power_tot = 0
         Volt_tot = 0
+        P_rice=[]
+
         for obstacle in self.environment.obstacles:
             image_position = self.compute_image_position(obstacle, emitter.position)
             if obstacle.check_intersection(image_position, receiver.position):
@@ -91,18 +91,20 @@ class RayTracing:
                 coeff_tot=reflection_coefficient
                 distance = self.calc_distance(image_position, receiver.position)#+ dm_1 + dm_2 #or Image pos to receiver
                 E, Power, Voltage = self.compute_electrical_field_and_power(coeff_tot, distance)
+                if self.rice: P_rice.append(Power)
                 if self.enableprint:
                     print(f"Received power after single reflection (Obstacle {obstacle}): {Power} W")
-                    print(f"Received voltage after single reflection (Obstacle {obstacle}): {Voltage} V")
+                    print(f"Received voltage after single reflection (Obstacle {obstacle}): {np.abs(Voltage)*10**6} µV and phase:{np.degrees(np.angle(Voltage))}°")
                 Power_tot += Power
                 Volt_tot+= Voltage
-
+        if self.rice: return P_rice,Volt_tot
         return Power_tot, Volt_tot
 
     def double_reflex_and_power(self, emitter, receiver):
         """
         Compute received power and voltage for double reflection paths.
         """
+        P_rice=[]
         Power_tot = 0
         Volt_tot = 0
         for obstacle1 in self.environment.obstacles:
@@ -127,18 +129,20 @@ class RayTracing:
                         coeff_tot=reflection_coefficient1 * reflection_coefficient2
                         total_distance = self.calc_distance(image_pos2,receiver.position)
                         Elec, Power, Voltage = self.compute_electrical_field_and_power(coeff_tot, total_distance)
+                        if self.rice: P_rice.append(Power)
                         if self.enableprint:
                             print(f"Received power after double reflection (Obstacles {obstacle1} and {obstacle2}): {Power} W")
-                            print(f"Received voltage after double reflection (Obstacles {obstacle1} and {obstacle2}): {Voltage} V")
+                            print(f"Received voltage after double reflection (Obstacles {obstacle1} and {obstacle2}): {np.abs(Voltage)*10**6} µV and phase:{np.degrees(np.angle(Voltage))}°")
                         Volt_tot += Voltage
                         Power_tot += Power
-
+        if self.rice: return P_rice,Volt_tot
         return Power_tot, Volt_tot
 
     def triple_reflex_and_power(self, emitter, receiver):
         """
         Compute received power and voltage for triple reflection paths.
         """
+        P_rice=[]
         Power_tot = 0
         Volt_tot = 0
         for obstacle1 in self.environment.obstacles:
@@ -185,12 +189,13 @@ class RayTracing:
                                 total_distance = self.calc_distance(image_pos3,receiver.position)
                                 # Calcul du champ électrique et de la puissance
                                 Elec, Power, Voltage = self.compute_electrical_field_and_power(coeff_tot, total_distance)
+                                if self.rice:P_rice.append(Power)
                                 if self.enableprint:
                                     print(f"Received power after triple reflection (Obstacle {obstacle1}): {Power} W")
-                                    print(f"Received voltage after triple reflection (Obstacle {obstacle1}): {Voltage} V")
+                                    print(f"Received voltage after triple reflection (Obstacle {obstacle1}): {np.abs(Voltage)*10**6} µV and phase:{np.degrees(np.angle(Voltage))}°")
                                 Volt_tot+=Voltage
                                 Power_tot += Power
-
+        if self.rice: return P_rice,Volt_tot
         return Power_tot, Volt_tot
 
     def ray_tracer(self):
@@ -207,24 +212,7 @@ class RayTracing:
                 total_power = direct_power + reflex_power + double_reflex_power+triple_reflex_power
                 total_voltage = direct_volt + reflex_volt +double_reflex_volt+triple_reflex_volt
                 received_power_dBm = 10 * np.log10(total_power / 1e-3)  # Conversion en dBm
-
-                if self.use_path_loss:
-                    distance = self.calc_distance(emitter.position, receiver.position)
-                    if distance==0: distance=1e-6
-                    L0=10*self.pl_exponent*np.log10(distance)+20*np.log10(frequency)-147.5
-                    L=L0-20*np.log10(self.G_TX)#-10*log10(self.G_TX)
-                    PTX_dbm=10*np.log10(self.P_TX)
-                    received_power_dBm= PTX_dbm -L
-
                 # n'aditionne pas les valeurs pour plusieurs emetteur mais ne garde que la plus grande
                 if received_power_dBm > max_power:
                     max_power = received_power_dBm
             receiver.received_power_dBm = max_power
-
-    def ray_tracer_with_path_loss(self):
-        """
-        Enable the path-loss model, run ray_tracer(), then disable path loss.
-        """
-        self.use_path_loss = True
-        self.ray_tracer()
-        self.use_path_loss = False
