@@ -2,6 +2,9 @@ import numpy as np
 from scipy import stats
 import matplotlib
 matplotlib.use('TkAgg')
+import os
+outdir=r'C:/Users/alexb/OneDrive - Université Libre de Bruxelles/MA1-ULBDrive/ELEC-H415/ELEC-H415_V2V/Plot'
+os.makedirs(outdir, exist_ok=True)
 import matplotlib.pyplot as plt
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from functools import partial
@@ -38,6 +41,7 @@ def compute_max_range_fitted(Ptx_dBm, Psens_dBm, margin_dB,G, L0_d0, n):
 
 def main():
     env = Environment()
+    env.emitters[0].position = Position(500, 10)
     rt  = RayTracing(env)
 
     res = 5
@@ -79,6 +83,7 @@ def main():
     plt.title('Path Loss vs Distance ')
     plt.legend()
     plt.grid(True)
+    plt.savefig(os.path.join(outdir, 'pathloss_dist.png'))
     plt.show()
 
     L0_pred = L0_d0 + 10 * n * np.log10(d_line[mask])
@@ -127,6 +132,7 @@ def main():
     plt.grid(True)
     plt.ylim(0.0, 1.0)
     plt.xlim(0, ranges_fitted.max() * 1.05)
+    plt.savefig(os.path.join(outdir, 'reliability_dist.png'))
     plt.show()
 
 

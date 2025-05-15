@@ -4,6 +4,9 @@ from raytracing import RayTracing
 import matplotlib.pyplot as plt
 import matplotlib
 import numpy as np
+import os
+outdir=r'C:/Users/alexb/OneDrive - Université Libre de Bruxelles/MA1-ULBDrive/ELEC-H415/ELEC-H415_V2V/Plot'
+os.makedirs(outdir, exist_ok=True)
 matplotlib.use('TkAgg')  # Use TkAgg backend for display
 from itertools import cycle
 
@@ -53,7 +56,8 @@ class TestRayTracingWithEnvironment(unittest.TestCase):
                 segments = [((emitter.position, receiver.position), next(self.colors))]
                 self.plot_with_emitters_and_receivers(emitter, receiver)
                 self._plot_segments(segments)
-        self._finalize_plot('Direct Ray Propagation', 'direct_propagation.jpeg')
+        self._finalize_plot('Direct Ray Propagation')
+        #plt.savefig(os.path.join(outdir, f"direct_prop.png"))
 
     def test_reflection(self):
         print("\nTesting single reflection propagation:")
@@ -77,7 +81,7 @@ class TestRayTracingWithEnvironment(unittest.TestCase):
                             segments.append(((imp, receiver.position), c))
                 self.plot_with_emitters_and_receivers(emitter, receiver)
                 self._plot_segments(segments)
-        self._finalize_plot('Single Reflection Rays', 'simple_reflection.jpeg')
+        self._finalize_plot('Single Reflection Rays')
 
     def test_double_reflection(self):
         print("\nTesting double reflection propagation:")
@@ -110,7 +114,7 @@ class TestRayTracingWithEnvironment(unittest.TestCase):
                                     ])
                 self.plot_with_emitters_and_receivers(emitter, receiver)
                 self._plot_segments(segments)
-        self._finalize_plot('Double Reflection Rays', 'double_reflection.jpeg')
+        self._finalize_plot('Double Reflection Rays')
 
     def test_triple_reflection(self):
         print("\nTesting triple reflection propagation:")

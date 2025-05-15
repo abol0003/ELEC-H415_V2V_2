@@ -2,6 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 import time
+import os
+outdir=r'C:/Users/alexb/OneDrive - Université Libre de Bruxelles/MA1-ULBDrive/ELEC-H415/ELEC-H415_V2V/Plot'
+os.makedirs(outdir, exist_ok=True)
 matplotlib.use('TkAgg')
 from matplotlib.collections import LineCollection
 from functools import partial
@@ -81,9 +84,7 @@ def create_heatmap(env, width, height, resolution, with_pl=False):
     power_grid = power.reshape(X.shape)
     average_power = calculate_average_received_power(env, rt, width, height)
     print(f"Average Received Power: {average_power:.2f} dBm")
-    filename = f'received_power_heatmap.png'
     title = f'Received Power Heatmap (dBm)'
-
     fig, ax = plt.subplots(figsize=(12, 10))
     pcm = ax.pcolormesh(X, Y, power_grid, shading='auto', cmap='viridis',
                         vmin=np.nanmin(power_grid), vmax=np.nanmax(power_grid))
@@ -94,8 +95,7 @@ def create_heatmap(env, width, height, resolution, with_pl=False):
     ax.set_ylabel('Y (m)')
     #ax.invert_yaxis()
     plt.tight_layout()
-    plt.savefig(filename, dpi=300)
-    print(f"Saved heatmap: {filename}")
+    plt.savefig(os.path.join(outdir, f"received_power_heatmap.png"), dpi=300)
     plt.show()
 
     # Plot débit
@@ -111,6 +111,7 @@ def create_heatmap(env, width, height, resolution, with_pl=False):
 
 if __name__ == '__main__':
     env = Environment()
+    env.emitters[0].position = Position(500, 10)
     start = time.time()
     res=1
    # multiprocessing.freeze_support()  # Windows only, safe elsewhere

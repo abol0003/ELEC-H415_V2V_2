@@ -5,7 +5,9 @@ import matplotlib.pyplot as plt
 from environment import Environment
 from raytracing import RayTracing
 from position import Position
-
+import os
+outdir=r'C:/Users/alexb/OneDrive - Université Libre de Bruxelles/MA1-ULBDrive/ELEC-H415/ELEC-H415_V2V/Plot'
+os.makedirs(outdir, exist_ok=True)
 # Speed of light (m/s)
 c = 299_792_458
 
@@ -156,10 +158,9 @@ def main():
         plt.grid(alpha=0.5)
         plt.tight_layout()
         # Save figure
-        outfile = 'prx_full_vs_ptx.png'
-        plt.savefig(outfile)
+        plt.savefig(os.path.join(outdir, 'prx_full_vs_ptx.png')
+)
         plt.show()
-        print(f"Figure saved as: {outfile}")
     # Step 3b: PRX vs distance at fixed TX power (échelle log–log)
     if mode[1] == 2:
         P_fixed = rt.P_TX
@@ -197,9 +198,8 @@ def main():
         plt.legend()
         plt.grid(which='both', linestyle=':', alpha=0.7)
         plt.tight_layout()
-        plt.savefig('prx_vs_distance_loglog.png')
+        plt.savefig(os.path.join(outdir, 'prx_vs_distance_loglog.png'))
         plt.show()
-        print("Figure saved as: prx_vs_distance_loglog.png")
 
 
 if __name__ == '__main__':
