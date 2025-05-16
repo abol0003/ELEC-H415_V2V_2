@@ -53,8 +53,8 @@ class Environment:
         Initialise les obstacles dans l'environnement, représentant des bâtiments, des murs, etc.
         """
         # Ajout de bâtiments en béton
-        self.obstacles.append(Obstacle(Position(0, 0), Position(1000, 0), self.materials['building'], 10.0))
-        self.obstacles.append(Obstacle(Position(0, 20), Position(1000, 20), self.materials['building'], 10.0))
+        self.obstacles.append(Obstacle(Position(0, 0), Position(1000, 0), self.materials['building'], 5.0))
+        self.obstacles.append(Obstacle(Position(0, 20), Position(1000, 20), self.materials['building'], 5.0))
 
 
     def init_emitters(self):

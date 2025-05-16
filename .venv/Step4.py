@@ -31,7 +31,7 @@ def step4_1_wideband_LOS(env, rt, BRF=100e6, Nt=1000, Nf=1000):
     plt.plot(t * 1e9, np.abs(h),'-',markersize=6,linewidth=2)
     plt.xlabel('Delay τ (ns)')
     plt.ylabel('|h(τ)|')
-    plt.title('LOS Impulse Response Magnitude')
+    plt.title('LOS Impulse Response')
     plt.xlim(0, t_max*1e9)  # limit x-axis from 0 to 2*tau1 in ns
     plt.grid(True)
     plt.tight_layout()
@@ -59,8 +59,9 @@ def step4_1_wideband_LOS(env, rt, BRF=100e6, Nt=1000, Nf=1000):
     plt.plot((f-fc)*1e-6, np.abs(H), 'C0-')
     plt.xlabel('Frequency Offset (MHz)')
     plt.ylabel('|H(f)|')
-    plt.title('LOS Frequency Response Magnitude')
-    plt.xlim(-BRF/2*1e-6-5, BRF/2*1e-6+5)  # set x-axis ±50 MHz
+    plt.title('LOS Frequency Response')
+    plt.xlim(-BRF/2*1e-6-5, BRF/2*1e-6+5)
+    plt.ylim(0,2/d1)# set x-axis ±50 MHz
     plt.xticks(np.arange(-50, 51, 25))  # ticks at -50, -25, 0, 25, 50
     plt.grid(True)
     plt.tight_layout()
@@ -69,9 +70,7 @@ def step4_1_wideband_LOS(env, rt, BRF=100e6, Nt=1000, Nf=1000):
     plt.show()
 def step4_2_TDL_wideband(env, rt, BRF=100e6):
     """
-    Step 4.2: Tapped‐Delay‐Line for the LOS ray only, with finite bandwidth:
-      h_TDL(τ) = Σ_{l=0}^L α₁ · sinc( BRF·(τ₁ - l·Δτ) ) · δ( τ - l·Δτ )
-    where Δτ = 1/BRF,  α₁ = exp(-j2π f_c τ₁)/d₁, and τ₁=d₁/c.
+    Step 4.2: Tapped‐Delay‐Line for the LOS ray only
     """
     # 1) TX/RX geometry
     tx   = env.emitters[0]
@@ -97,7 +96,7 @@ def step4_2_TDL_wideband(env, rt, BRF=100e6):
     plt.plot(t_l * 1e9, np.abs(h_l),'-',markersize=6,linewidth=2)
     plt.xlabel('Delay τ (ns)')
     plt.ylabel('|$h_{TDL}(τ)$|')
-    plt.title('$h_{TDL}(τ)$ Impulse Response')
+    plt.title('$h_{TDL}(τ)$ LOS Impulse Response')
     plt.xlim(0, t_l.max()*1e9)
     plt.grid(True)
     plt.tight_layout()

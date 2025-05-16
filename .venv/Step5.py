@@ -94,10 +94,10 @@ def step5_full_wideband(env, rt, BRF=100e6):
 
     # --- 3) Plot |h(τ)| ---
     plt.figure(figsize=(8,4))
-    plt.plot(t*1e9, np.abs(h), '-o', markersize=4, linewidth=1.5)
+    plt.plot(t*1e9, np.abs(h), '-', markersize=4, linewidth=1.5)
     plt.xlabel('Delay τ (ns)')
     plt.ylabel('|h(τ)|')
-    plt.title('Full‐Channel Physical Impulse Response')
+    plt.title('Channel Physical Impulse Response')
     plt.xlim(0, t_max*1e9)
     plt.grid(True)
     plt.tight_layout()
@@ -109,7 +109,7 @@ def step5_full_wideband(env, rt, BRF=100e6):
     plt.plot(t*1e9, np.degrees(np.angle(h)), '-o', markersize=4, linewidth=1.5)
     plt.xlabel('Delay τ (ns)')
     plt.ylabel('Phase h(τ) (°)')
-    plt.title('Full‐Channel Impulse Response Phase')
+    plt.title('Channel Impulse Response Phase')
     plt.xlim(0, t_max*1e9)
     plt.grid(True)
     plt.tight_layout()
@@ -128,7 +128,7 @@ def step5_full_wideband(env, rt, BRF=100e6):
     plt.plot(f*1e-6, np.abs(H2), '-', linewidth=2)
     plt.xlabel('Frequency Offset (MHz)')
     plt.ylabel('|H(f)|')
-    plt.title('Full‐Channel Frequency Response Magnitude')
+    plt.title('Channel Frequency Response')
     #plt.xlim(-BRF/2*1e-6-1, BRF/2*1e-6+1)
     #plt.xticks(np.arange(-50, 51, 25))  # ticks at -50, -25, 0, 25, 50
     plt.grid(True)
@@ -224,13 +224,13 @@ def step5_2_TDL_full(env, rt, BRF=100e6):
     plt.plot(
         t_l*1e9,            # ns
         np.abs(h_l),        # amplitude
-        '-o',               # line with circle markers
+        '-',               # line with circle markers
         linewidth=2,
         markersize=5
     )
     plt.xlabel('Delay τ (ns)')
     plt.ylabel('|$h_{TDL}(τ)$|')
-    plt.title('Tapped-Delay-Line of Full Channel')
+    plt.title('Full Channel Tapped-Delay-Line Impulse Response')
     plt.xlim(0, t_l.max()*1e9+10)
     plt.grid(True)
     plt.tight_layout()
@@ -241,5 +241,5 @@ def step5_2_TDL_full(env, rt, BRF=100e6):
 if __name__ == '__main__':
     env = Environment()
     rt  = RayTracing(env)
-    step5_full_wideband(env, rt, BRF=100e6)
+   # step5_full_wideband(env, rt, BRF=100e6)
     step5_2_TDL_full(env, rt, BRF=100e6)

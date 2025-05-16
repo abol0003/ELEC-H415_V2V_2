@@ -50,7 +50,7 @@ def main():
     ys = np.arange(0, height, res)
     X, Y = np.meshgrid(xs, ys)
 
-    P_meas = create_heatmap(env, width, height, res, with_pl=False)
+    P_meas = create_heatmap(env, width, height, res)
     Ptx_dBm = 10 * np.log10(rt.P_TX / 1e-3)
 
     # 4) Extraction de la transectée au niveau de l'émetteur
@@ -75,7 +75,7 @@ def main():
     L_friis = 20*np.log10(d_vals) + 20*np.log10(rt.frequency) - 147.55 - 20*np.log10(G)
 
     plt.figure(figsize=(8,5))
-    plt.plot(d_line, L0_line, 'o', ms=4, label='Simulation')
+    plt.plot(d_line, L0_line, 'o', ms=4, label='Averaged Received Power')
     plt.plot(d_vals, L0_fit, 'r-', lw=2, label=f'Fitted Path Loss {L0_d0:.3f}+10·{n:.4f}log10(d)')
     plt.plot(d_vals, L_friis, 'k--', label='FSPL')
     plt.xlabel('Distance (m)')
@@ -90,7 +90,7 @@ def main():
     residuals = L0_line[mask] - L0_pred
     #residuals=Ptx_dBm-P_meas
     residuals_centered = residuals - np.mean(residuals)
-    sigma_L = np.std(residuals_centered, ddof=1)
+    sigma_L = np.std(residuals, ddof=1)
     print(f"Variability σ_L around the model: {sigma_L:.2f} dB")
     stat, p_value = stats.kstest(residuals_centered, 'norm', args=(0, sigma_L))
     print(f"KS test: statistic= {stat:.3f}, p-value= {p_value:.3f}")

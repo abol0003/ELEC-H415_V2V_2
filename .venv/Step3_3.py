@@ -111,7 +111,7 @@ def main():
     emitter = env.emitters[0]
     receiver = env.receivers[0]
 
-    mode = [1, 2]  # [MPCs, TX variation]
+    mode = [0, 2]  # [MPCs, TX variation]
 
     # Step 1 & 2: MPCs
     if mode[0] == 1:
@@ -153,7 +153,7 @@ def main():
         plt.plot(P_TX_vals, PRX_friis, '--', label='Friis Model')
         plt.xlabel('Transmit Power $P_{TX}$ (W)')
         plt.ylabel('Received Power $P_{RX}$ (W)')
-        plt.title(f'Step 3.3 – $P_{{RX}}$ vs $P_{{TX}}$ at {d0:.1f} m')
+        plt.title(f'$P_{{RX}}$ vs $P_{{TX}}$ at {d0:.1f} m')
         plt.legend()
         plt.grid(alpha=0.5)
         plt.tight_layout()
@@ -194,7 +194,7 @@ def main():
         plt.semilogy(dist_vals, PRX_friis, '--', label='Friis Model')
         plt.xlabel('Distance (m)')
         plt.ylabel('Received Power $P_{RX}$ (W)')
-        plt.title('Step 3.3b – $P_{RX}$ vs Distance ')
+        plt.title('$P_{RX}$ vs Distance ')
         plt.legend()
         plt.grid(which='both', linestyle=':', alpha=0.7)
         plt.tight_layout()

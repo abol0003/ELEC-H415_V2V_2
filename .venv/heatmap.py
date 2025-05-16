@@ -9,6 +9,8 @@ matplotlib.use('TkAgg')
 from matplotlib.collections import LineCollection
 from functools import partial
 from concurrent.futures import ProcessPoolExecutor
+from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from environment import Environment
 from raytracing import RayTracing
 from position import Position
@@ -68,7 +70,7 @@ def calculate_average_received_power(env, ray_tracer, width, height):
             count += 1
     return total_power / count if count else -np.inf
 
-def create_heatmap(env, width, height, resolution, with_pl=False):
+def create_heatmap(env, width, height, resolution):
     x = np.arange(0, width, resolution)
     y = np.arange(0, height, resolution)
     X, Y = np.meshgrid(x, y)
@@ -84,10 +86,10 @@ def create_heatmap(env, width, height, resolution, with_pl=False):
     power_grid = power.reshape(X.shape)
     average_power = calculate_average_received_power(env, rt, width, height)
     print(f"Average Received Power: {average_power:.2f} dBm")
-    title = f'Received Power Heatmap (dBm)'
+    title = f'Received Power Heatmap with resolution {resolution} m²'
     fig, ax = plt.subplots(figsize=(12, 10))
     pcm = ax.pcolormesh(X, Y, power_grid, shading='auto', cmap='viridis',
-                        vmin=np.nanmin(power_grid), vmax=np.nanmax(power_grid))
+                         vmin=np.nanmin(power_grid)-7, vmax=np.nanmax(power_grid))
     fig.colorbar(pcm, ax=ax, label='Received Power (dBm)')
     draw_obstacles(ax, env)
     ax.set_title(title)
@@ -109,16 +111,82 @@ def create_heatmap(env, width, height, resolution, with_pl=False):
     # plt.show()
     return power_grid
 
+
+def create_heatmap_3d(env, width, height, resolution, building_height=12.0):
+    # 2) Sample power grid
+    x = np.arange(0, width, resolution)
+    y = np.arange(0, height, resolution)
+    X, Y = np.meshgrid(x, y)
+
+    rt   = RayTracing(env)
+    func = partial(calculate_power_at_point, env, rt)
+    with ProcessPoolExecutor() as ex:
+        P = np.array(list(ex.map(func, X.ravel(), Y.ravel())))
+    Z = P.reshape(X.shape)
+
+    # 3) Interactive 3D plot
+    fig = plt.figure(figsize=(12,8))
+    ax  = fig.add_subplot(111, projection='3d')
+
+    surf = ax.plot_surface(
+        X, Y, Z,
+        rcount=X.shape[0], ccount=X.shape[1],
+        cmap='viridis', edgecolor='none'
+    )
+    fig.colorbar(surf, ax=ax, shrink=0.5, aspect=10,
+                 label='Received Power (dBm)')
+
+    # 4) Extrude buildings at constant base
+    z0 = np.nanmin(Z)
+    for obs in env.obstacles:
+        x0, y0 = obs.start.x, obs.start.y
+        x1, y1 = obs.end.x,   obs.end.y
+        t = obs.thickness
+        # north building band
+        yb = 20.0
+        verts_n = [
+            (x0, yb, z0), (x1, yb, z0),
+            (x1, yb+t, z0), (x0, yb+t, z0)
+        ]
+        # south building band
+        ys = 0.0
+        verts_s = [
+            (x0, ys, z0), (x1, ys, z0),
+            (x1, ys-t, z0), (x0, ys-t, z0)
+        ]
+        for base in (verts_n, verts_s):
+            top = [(x,y,z0+building_height) for x,y,_ in base]
+            faces = [
+                [base[0], base[1], top[1], top[0]],
+                [base[1], base[2], top[2], top[1]],
+                [base[2], base[3], top[3], top[2]],
+                [base[3], base[0], top[0], top[3]],
+            ]
+            poly = Poly3DCollection(faces,
+                                    facecolors=obs.material.color,
+                                    edgecolors='k', alpha=1)
+            ax.add_collection3d(poly)
+
+    # 5) Labels & view
+    ax.set_xlabel('X (m)')
+    ax.set_ylabel('Y (m)')
+    ax.set_zlabel('Power (dBm)')
+    ax.set_title(f'3D Power Surface with resolution {resolution} m²')
+    ax.view_init(elev=35, azim=-20)
+    ax.set_zlim(np.nanmin(Z), np.nanmax(Z))
+    plt.tight_layout()
+    plt.savefig(os.path.join(outdir, f"received_power_heatmap_3D.png"), dpi=300)
+    plt.show()
+
+
 if __name__ == '__main__':
     env = Environment()
     env.emitters[0].position = Position(500, 10)
     start = time.time()
     res=1
    # multiprocessing.freeze_support()  # Windows only, safe elsewhere
-    create_heatmap(env, width=1000, height=21, resolution=res,
-                   with_pl=False)
-
-
+    create_heatmap(env, width=1000, height=21, resolution=res)
+    create_heatmap_3d(env, width=1000, height=21, resolution=res,building_height=90.0)
 
     end = time.time()
     print(f"Total Heatmap Time: {end - start:.2f}s")
