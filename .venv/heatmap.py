@@ -97,7 +97,7 @@ def create_heatmap(env, width, height, resolution):
     ax.set_ylabel('Y (m)')
     #ax.invert_yaxis()
     plt.tight_layout()
-    plt.savefig(os.path.join(outdir, f"received_power_heatmap.png"), dpi=300)
+    plt.savefig(os.path.join(outdir, f"received_power_heatmap_5.png"), dpi=300)
     plt.show()
 
     # Plot débit
@@ -131,7 +131,7 @@ def create_heatmap_3d(env, width, height, resolution, building_height=12.0):
     surf = ax.plot_surface(
         X, Y, Z,
         rcount=X.shape[0], ccount=X.shape[1],
-        cmap='viridis', edgecolor='none'
+        cmap='viridis', edgecolor='none',vmin=np.nanmin(P), vmax=np.nanmax(P)
     )
     fig.colorbar(surf, ax=ax, shrink=0.5, aspect=10,
                  label='Received Power (dBm)')
@@ -172,7 +172,7 @@ def create_heatmap_3d(env, width, height, resolution, building_height=12.0):
     ax.set_ylabel('Y (m)')
     ax.set_zlabel('Power (dBm)')
     ax.set_title(f'3D Power Surface with resolution {resolution} m²')
-    ax.view_init(elev=35, azim=-20)
+    ax.view_init(elev=50, azim=-15)
     ax.set_zlim(np.nanmin(Z), np.nanmax(Z))
     plt.tight_layout()
     plt.savefig(os.path.join(outdir, f"received_power_heatmap_3D.png"), dpi=300)
@@ -185,7 +185,7 @@ if __name__ == '__main__':
     start = time.time()
     res=1
    # multiprocessing.freeze_support()  # Windows only, safe elsewhere
-    create_heatmap(env, width=1000, height=21, resolution=res)
+    #create_heatmap(env, width=1000, height=21, resolution=res)
     create_heatmap_3d(env, width=1000, height=21, resolution=res,building_height=90.0)
 
     end = time.time()

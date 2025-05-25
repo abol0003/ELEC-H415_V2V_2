@@ -17,6 +17,7 @@ def step4_1_wideband_LOS(env, rt, BRF=100e6, Nt=1000, Nf=1000):
     d1   = rt.calc_distance(tx.position, rx.position)
     tau1 = d1 / c                         # propagation delay (s)
     fc   = rt.frequency                   # carrier frequency (Hz)
+    lamb=c/fc
 
     # 1) Sampled impulse response h(τ)
     t_max = 2 * tau1
@@ -24,7 +25,7 @@ def step4_1_wideband_LOS(env, rt, BRF=100e6, Nt=1000, Nf=1000):
     h     = np.zeros(Nt, dtype=complex)
     idx   = np.argmin(np.abs(t - tau1))
     # include amplitude and carrier phase at τ1
-    h[idx] = np.exp(-1j * 2*np.pi * fc * tau1) / d1
+    h[idx] = (lamb/(3*np.pi**2))* np.exp(-1j * 2*np.pi * fc * tau1) / d1
 
     # Plot |h(τ)|
     plt.figure(figsize=(8,4))
@@ -57,11 +58,11 @@ def step4_1_wideband_LOS(env, rt, BRF=100e6, Nt=1000, Nf=1000):
     # Plot |H(f)|
     plt.figure(figsize=(8,4))
     plt.plot((f-fc)*1e-6, np.abs(H), 'C0-')
-    plt.xlabel('Frequency Offset (MHz)')
+    plt.xlabel('Frequency (MHz)')
     plt.ylabel('|H(f)|')
     plt.title('LOS Frequency Response')
     plt.xlim(-BRF/2*1e-6-5, BRF/2*1e-6+5)
-    plt.ylim(0,2/d1)# set x-axis ±50 MHz
+    #plt.ylim(0,2/d1)# set x-axis ±50 MHz
     plt.xticks(np.arange(-50, 51, 25))  # ticks at -50, -25, 0, 25, 50
     plt.grid(True)
     plt.tight_layout()
@@ -79,7 +80,7 @@ def step4_2_TDL_wideband(env, rt, BRF=100e6):
     d1   = rt.calc_distance(tx.position, rx.position)
     tau1 = d1 / c
     fc   = rt.frequency
-
+    lamb=c/fc
     # 2) Time‐bin Δτ and tap indices l
     dtau = 1/BRF
     L    = int(np.ceil(2*tau1/dtau))
@@ -87,7 +88,7 @@ def step4_2_TDL_wideband(env, rt, BRF=100e6):
     t_l  = l * dtau
 
     # 3) Complex amplitude α₁ for the LOS ray
-    alpha1 = np.exp(-1j * 2*np.pi * fc * tau1) / d1
+    alpha1 = (lamb/(3*np.pi**2))*np.exp(-1j * 2*np.pi * fc * tau1) / d1
     # 4) Compute tapped amplitudes h_l with sinc envelope
     h_l = alpha1 * np.sinc(BRF * (tau1 - t_l))
 

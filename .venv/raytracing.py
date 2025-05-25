@@ -67,7 +67,7 @@ class RayTracing:
         transmission_coefficient=1
         distance = self.calc_distance(emitter.position, receiver.position)
         if distance == 0:  # Avoid division by zero
-            distance = 10**(-6)
+            distance =0.1
         E, Power, Voltage = self.compute_electrical_field_and_power(transmission_coefficient, distance)
 
         return Power, Voltage

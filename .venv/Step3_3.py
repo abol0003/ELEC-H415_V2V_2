@@ -182,18 +182,18 @@ def main():
             p2,v2=rt.double_reflex_and_power(emitter,receiver)
             p3,v3=rt.triple_reflex_and_power(emitter,receiver)
             Power = (np.abs(v0+v1+v2+v3) ** 2) / (8 * rt.Ra)
-            PRX_rt.append(p_los+p1+p2+p3) #averaging by raytracing
-            PRX_rt2.append(Power) #real one taking interference
+            PRX_rt.append(10*np.log10((p_los+p1+p2+p3)/1e-3)) #averaging by raytracing
+            PRX_rt2.append(10*np.log10(Power/1e-3)) #real one taking interference
             PRX_friis.append(
-                P_fixed * G ** 2 * (wavelength / (4 * np.pi * d)) ** 2
+                10*np.log10(P_fixed * G ** 2 * (wavelength / (4 * np.pi * d)) ** 2/1e-3)
             )
 
         plt.figure(figsize=(8, 5))
-        plt.semilogy(dist_vals, PRX_rt, label='Ray-Tracing')
-        plt.semilogy(dist_vals, PRX_rt2, label='Real values')
-        plt.semilogy(dist_vals, PRX_friis, '--', label='Friis Model')
+        plt.semilogx(dist_vals, PRX_rt, label='Ray-Tracing')
+        plt.semilogx(dist_vals, PRX_rt2, label='Real values')
+        plt.semilogx(dist_vals, PRX_friis, '--', label='Friis Model')
         plt.xlabel('Distance (m)')
-        plt.ylabel('Received Power $P_{RX}$ (W)')
+        plt.ylabel('Received Power $P_{RX}$ (dBm)')
         plt.title('$P_{RX}$ vs Distance ')
         plt.legend()
         plt.grid(which='both', linestyle=':', alpha=0.7)

@@ -22,7 +22,7 @@ def compute_k_factor(rt, emitter, receiver,inter):
     P3, v3 = rt.triple_reflex_and_power(emitter, receiver)
     Power0 = (np.abs( v0) ** 2) / (8 * rt.Ra)
     Power = (np.abs( v1 + v2 + v3) ** 2) / (8 * rt.Ra)
-    #return Power0**2/ Power**2
+    #-return Power0**2/ Power**2
     return (Power0 ** 2 / Power ** 2) if inter else (
             P0 ** 2 / (
             P1[0] ** 2 + P1[1] ** 2 +
@@ -51,23 +51,24 @@ def main():
     # ----------------------
     # Plot 1: K-Factor vs Distance
     # ----------------------
-    distances = np.linspace(0, 1000, 1000)
+    distances = np.linspace(1, 1000, 1000)
     K_vals = []
     K_vals_w = []
     for d in distances:
         rt.rice=True
         receiver.position.x = emitter.position.x + d
         K_vals.append(compute_k_factor(rt, emitter, receiver,False))
-        K_vals_w.append(compute_k_factor(rt, emitter, receiver,True))
+        #K_vals_w.append(compute_k_factor(rt, emitter, receiver,True))
 
 
-    K_vals = np.array(K_vals)
+   # K_vals = np.array(K_vals)
     K_dB = 10 * np.log10(K_vals)
-    K_vals = np.array(K_vals_w)
-    K_dB_2 = 10 * np.log10(K_vals)
+    #K_dB[0]=40
+    #K_vals = np.array(K_vals_w)
+    #K_dB_2 = 10 * np.log10(K_vals)
 
     plt.figure(figsize=(8, 5))
-    #plt.plot(distances, K_vals, label='K (linear)')
+   # plt.plot(distances, K_vals, label='K (linear)')
     plt.plot(distances, K_dB, '-', label='K (dB)')
     #plt.plot(distances, K_dB_2, '-', label='K (dB) Real Values')
 
@@ -75,6 +76,7 @@ def main():
     plt.ylabel('Rician K-Factor (dB)')
     plt.title('Rice Factor Variation with Distance')
     plt.legend()
+    plt.ylim(-10,50)
     plt.grid(alpha=0.5)
     plt.tight_layout()
     plt.savefig(os.path.join(outdir, 'rician_K_vs_distance.png'))

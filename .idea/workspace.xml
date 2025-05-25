@@ -4,39 +4,61 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d37ee632-9b5c-458f-89fc-dd7a3a32c3d9" name="Changes" comment="Added step 4 and step 5">
-      <change afterPath="$PROJECT_DIR$/Plot/direct_prop.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Plot/direct_prop_2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Plot/double_prop.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Plot/frequency_full_magnitude_2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Plot/impulse_full_magnitude_2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Plot/prx_full_vs_ptx.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Plot/received_power_heatmap_3D.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Plot/received_power_heatmap_3D_5.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Plot/received_power_heatmap_5.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Plot/single_prop.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Plot/tdl_full_magnitude_2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Plot/triple_prop.png" afterDir="false" />
+    <list default="true" id="d37ee632-9b5c-458f-89fc-dd7a3a32c3d9" name="Changes" comment="small changes">
+      <change afterPath="$PROJECT_DIR$/.venv/step6.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Plot/amplitude_stats.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Plot/doppler_emp.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Plot/doppler_theo.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Plot/frequency_corr.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Plot/frequency_full_magnitude2.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Plot/frequency_magnitude2.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Plot/global_pathloss_fit.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Plot/impulse_full_magnitude2.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Plot/impulse_full_phase2.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Plot/impulse_magnitude2.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Plot/link_reliability.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Plot/pathloss1d.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Plot/pathloss2d_curve.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Plot/pathloss2d_fit.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Plot/pathloss2d_transect.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Plot/pathloss_1d.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Plot/pathloss_2d_fit.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Plot/pathloss_2d_scatter.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Plot/pathloss_vs_distance.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Plot/pdp.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Plot/received.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Plot/received_full.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Plot/reliability.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Plot/reliability2d.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Plot/reliability_vs_range.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Plot/residuals2d.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Plot/residuals_heatmap.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Plot/residuals_histogram.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Plot/scattering.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Plot/tdl_full_magnitude2.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Plot/tdl_wideband2.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Plot/temporal_autocorr.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.venv/Step3_3.py" beforeDir="false" afterPath="$PROJECT_DIR$/.venv/Step3_3.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.venv/Step3_4.py" beforeDir="false" afterPath="$PROJECT_DIR$/.venv/Step3_4.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.venv/Step3_6.py" beforeDir="false" afterPath="$PROJECT_DIR$/.venv/Step3_6.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.venv/Step4.py" beforeDir="false" afterPath="$PROJECT_DIR$/.venv/Step4.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.venv/Step5.py" beforeDir="false" afterPath="$PROJECT_DIR$/.venv/Step5.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.venv/environment.py" beforeDir="false" afterPath="$PROJECT_DIR$/.venv/environment.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.venv/heatmap.py" beforeDir="false" afterPath="$PROJECT_DIR$/.venv/heatmap.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.venv/raytracing.py" beforeDir="false" afterPath="$PROJECT_DIR$/.venv/raytracing.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Plot/frequency_full_magnitude.png" beforeDir="false" afterPath="$PROJECT_DIR$/Plot/frequency_full_magnitude.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plot/frequency_magnitude.png" beforeDir="false" afterPath="$PROJECT_DIR$/Plot/frequency_magnitude.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plot/frequency_magnitude.png" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Plot/impulse_full_magnitude.png" beforeDir="false" afterPath="$PROJECT_DIR$/Plot/impulse_full_magnitude.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plot/impulse_full_phase.png" beforeDir="false" afterPath="$PROJECT_DIR$/Plot/impulse_full_phase.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plot/impulse_full_step5_1.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plot/impulse_magnitude.png" beforeDir="false" afterPath="$PROJECT_DIR$/Plot/impulse_magnitude.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plot/impulse_magnitude.png" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Plot/pathloss_dist.png" beforeDir="false" afterPath="$PROJECT_DIR$/Plot/pathloss_dist.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Plot/prx_vs_distance_loglog.png" beforeDir="false" afterPath="$PROJECT_DIR$/Plot/prx_vs_distance_loglog.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Plot/received_power_heatmap.png" beforeDir="false" afterPath="$PROJECT_DIR$/Plot/received_power_heatmap.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plot/received_power_heatmap_3D.png" beforeDir="false" afterPath="$PROJECT_DIR$/Plot/received_power_heatmap_3D.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plot/received_power_heatmap_3D_5.png" beforeDir="false" afterPath="$PROJECT_DIR$/Plot/received_power_heatmap_3D_5.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plot/received_power_heatmap_5.png" beforeDir="false" afterPath="$PROJECT_DIR$/Plot/received_power_heatmap_5.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Plot/rician_K_vs_distance.png" beforeDir="false" afterPath="$PROJECT_DIR$/Plot/rician_K_vs_distance.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Plot/tdl_full_magnitude.png" beforeDir="false" afterPath="$PROJECT_DIR$/Plot/tdl_full_magnitude.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plot/tdl_wideband.png" beforeDir="false" afterPath="$PROJECT_DIR$/Plot/tdl_wideband.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plot/tdl_wideband.png" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -106,6 +128,7 @@
     "Python.obstacle.executor": "Run",
     "Python.physics.executor": "Debug",
     "Python.raytracing.executor": "Run",
+    "Python.step6.executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "abol0003",
@@ -140,29 +163,6 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/.venv/Step3_2.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="Step3_2" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="ELEC-H415_V2V" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/.venv" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="C:\Users\alexb\OneDrive - Université Libre de Bruxelles\MA1-ULBDrive\ELEC-H415\ELEC-H415_V2V\.venv\Step3_2.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -217,6 +217,29 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="Step5" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="ELEC-H415_V2V" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/.venv" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/.venv/Step5.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="heatmap" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="ELEC-H415_V2V" />
       <option name="ENV_FILES" value="" />
@@ -242,11 +265,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.heatmap" />
+        <item itemvalue="Python.Step5" />
         <item itemvalue="Python.Step4" />
         <item itemvalue="Python.Step3_6" />
         <item itemvalue="Python.Step3_2 (1)" />
-        <item itemvalue="Python.Step3_2" />
-        <item itemvalue="Python.heatmap" />
       </list>
     </recent_temporary>
   </component>
@@ -282,7 +305,11 @@
       <workItem from="1746955046502" duration="2341000" />
       <workItem from="1747144314781" duration="6901000" />
       <workItem from="1747156290884" duration="22191000" />
-      <workItem from="1747291514231" duration="38087000" />
+      <workItem from="1747291514231" duration="38922000" />
+      <workItem from="1747663974867" duration="140000" />
+      <workItem from="1747723509577" duration="15863000" />
+      <workItem from="1748165751095" duration="6942000" />
+      <workItem from="1748173894926" duration="15349000" />
     </task>
     <task id="LOCAL-00001" summary="new project">
       <option name="closed" value="true" />
@@ -372,7 +399,15 @@
       <option name="project" value="LOCAL" />
       <updated>1747308318366</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="small changes">
+      <option name="closed" value="true" />
+      <created>1747424195095</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1747424195096</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -413,7 +448,8 @@
     <MESSAGE value="working on step 3" />
     <MESSAGE value="Finished step 3" />
     <MESSAGE value="Added step 4 and step 5" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added step 4 and step 5" />
+    <MESSAGE value="small changes" />
+    <option name="LAST_COMMIT_MESSAGE" value="small changes" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -445,13 +481,33 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/.venv/Step4.py</url>
-          <line>89</line>
+          <line>90</line>
           <option name="timeStamp" value="49" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/.venv/step6.py</url>
+          <line>26</line>
+          <option name="timeStamp" value="55" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/.venv/Step3_4.py</url>
+          <line>63</line>
+          <option name="timeStamp" value="58" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/.venv/Step5.py</url>
+          <line>145</line>
+          <option name="timeStamp" value="61" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/.venv/Step3_6.py</url>
-          <line>70</line>
-          <option name="timeStamp" value="54" />
+          <line>227</line>
+          <option name="timeStamp" value="62" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/.venv/Step3_6.py</url>
+          <line>41</line>
+          <option name="timeStamp" value="64" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -465,19 +521,20 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/ELEC_H415_V2V$physics.coverage" NAME="physics Coverage Results" MODIFIED="1746783870325" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/.venv" />
+    <SUITE FILE_PATH="coverage/ELEC_H415_V2V$step6.coverage" NAME="step6 Coverage Results" MODIFIED="1748173233950" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/.venv" />
     <SUITE FILE_PATH="coverage/ELEC_H415_V2V$WaveV2V.coverage" NAME="WaveV2V Coverage Results" MODIFIED="1746865880730" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/.venv" />
     <SUITE FILE_PATH="coverage/ELEC_H415_V2V$.coverage" NAME=" Coverage Results" MODIFIED="1747317326511" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/.venv" />
-    <SUITE FILE_PATH="coverage/ELEC_H415_V2V$Step5.coverage" NAME="Step5 Coverage Results" MODIFIED="1747416052293" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/.venv" />
+    <SUITE FILE_PATH="coverage/ELEC_H415_V2V$Step5.coverage" NAME="Step5 Coverage Results" MODIFIED="1748172628264" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/.venv" />
     <SUITE FILE_PATH="coverage/ELEC_H415_V2V$Step3_2__1_.coverage" NAME="Step3_2 (1) Coverage Results" MODIFIED="1747149125023" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/.venv" />
-    <SUITE FILE_PATH="coverage/ELEC_H415_V2V$heatmap.coverage" NAME="heatmap Coverage Results" MODIFIED="1747379099683" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/.venv" />
-    <SUITE FILE_PATH="coverage/ELEC_H415_V2V$Step3_4.coverage" NAME="Step3_4 Coverage Results" MODIFIED="1747397641604" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/.venv" />
+    <SUITE FILE_PATH="coverage/ELEC_H415_V2V$Step3_4.coverage" NAME="Step3_4 Coverage Results" MODIFIED="1748167236060" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/.venv" />
+    <SUITE FILE_PATH="coverage/ELEC_H415_V2V$heatmap.coverage" NAME="heatmap Coverage Results" MODIFIED="1748174615598" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/.venv" />
     <SUITE FILE_PATH="coverage/ELEC_H415_V2V$raytracing.coverage" NAME="raytracing Coverage Results" MODIFIED="1747249147599" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/.venv" />
     <SUITE FILE_PATH="coverage/ELEC_H415_V2V$STEP3_1.coverage" NAME="STEP3_1 Coverage Results" MODIFIED="1747312129269" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/.venv" />
-    <SUITE FILE_PATH="coverage/ELEC_H415_V2V$Step4.coverage" NAME="Step4 Coverage Results" MODIFIED="1747408844985" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/.venv" />
+    <SUITE FILE_PATH="coverage/ELEC_H415_V2V$Step4.coverage" NAME="Step4 Coverage Results" MODIFIED="1748171226988" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/.venv" />
     <SUITE FILE_PATH="coverage/ELEC_H415_V2V$_base.coverage" NAME="_base Coverage Results" MODIFIED="1746955997361" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/AppData/Local/Programs/Python/Python312/Lib/concurrent/futures" />
-    <SUITE FILE_PATH="coverage/ELEC_H415_V2V$environment.coverage" NAME="environment Coverage Results" MODIFIED="1747306183698" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/.venv" />
-    <SUITE FILE_PATH="coverage/ELEC_H415_V2V$Step3_6.coverage" NAME="Step3_6 Coverage Results" MODIFIED="1747385976643" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/.venv" />
-    <SUITE FILE_PATH="coverage/ELEC_H415_V2V$Step3_3.coverage" NAME="Step3_3 Coverage Results" MODIFIED="1747318457268" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/.venv" />
+    <SUITE FILE_PATH="coverage/ELEC_H415_V2V$environment.coverage" NAME="environment Coverage Results" MODIFIED="1748168430227" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/.venv" />
+    <SUITE FILE_PATH="coverage/ELEC_H415_V2V$Step3_6.coverage" NAME="Step3_6 Coverage Results" MODIFIED="1748207889597" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/.venv" />
+    <SUITE FILE_PATH="coverage/ELEC_H415_V2V$Step3_3.coverage" NAME="Step3_3 Coverage Results" MODIFIED="1748177295342" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/.venv" />
     <SUITE FILE_PATH="coverage/ELEC_H415_V2V$obstacle.coverage" NAME="obstacle Coverage Results" MODIFIED="1744210299553" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/.venv" />
   </component>
 </project>

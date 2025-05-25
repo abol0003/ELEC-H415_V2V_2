@@ -18,6 +18,7 @@ def step5_full_wideband(env, rt, BRF=100e6):
     rx   = env.receivers[0]
     c    = 299_792_458
     fc   = rt.frequency
+    lamb=c/fc
     taps = []
     d0   = rt.calc_distance(tx.position, rx.position)
     tau0 = d0 / c
@@ -94,16 +95,16 @@ def step5_full_wideband(env, rt, BRF=100e6):
 
     # --- 3) Plot |h(τ)| ---
     plt.figure(figsize=(8,4))
-    plt.plot(t*1e9, np.abs(h), '-', markersize=4, linewidth=1.5)
+    plt.plot(t*1e9, np.abs((lamb*h/(3*np.pi**2))), '-', markersize=4, linewidth=1.5)
     plt.xlabel('Delay τ (ns)')
     plt.ylabel('|h(τ)|')
     plt.title('Channel Physical Impulse Response')
     plt.xlim(0, t_max*1e9)
     plt.grid(True)
     plt.tight_layout()
-    plt.savefig(os.path.join(outdir, 'impulse_full_magnitude.png'), dpi=300)
+    plt.savefig(os.path.join(outdir, 'impulse_full_magnitude2.png'), dpi=300)
     plt.show()
-
+    h=lamb*h/(3*np.pi**2)
     # --- 4) Plot ∠h(τ) ---
     plt.figure(figsize=(8,4))
     plt.plot(t*1e9, np.degrees(np.angle(h)), '-o', markersize=4, linewidth=1.5)
@@ -113,7 +114,7 @@ def step5_full_wideband(env, rt, BRF=100e6):
     plt.xlim(0, t_max*1e9)
     plt.grid(True)
     plt.tight_layout()
-    plt.savefig(os.path.join(outdir, 'impulse_full_phase.png'), dpi=300)
+    plt.savefig(os.path.join(outdir, 'impulse_full_phase2.png'), dpi=300)
     #plt.show()
 
     # --- 5) Analytical frequency response H(f) ---
@@ -133,7 +134,7 @@ def step5_full_wideband(env, rt, BRF=100e6):
     #plt.xticks(np.arange(-50, 51, 25))  # ticks at -50, -25, 0, 25, 50
     plt.grid(True)
     plt.tight_layout()
-    plt.savefig(os.path.join(outdir, 'frequency_full_magnitude.png'), dpi=300)
+    plt.savefig(os.path.join(outdir, 'frequency_full_magnitude2.png'), dpi=300)
     plt.show()
 
 def step5_2_TDL_full(env, rt, BRF=100e6):
@@ -143,6 +144,7 @@ def step5_2_TDL_full(env, rt, BRF=100e6):
     tx = env.emitters[0]
     rx = env.receivers[0]
     fc = rt.frequency
+    lamb=c/fc
 
     taps = []
     # LOS
@@ -223,7 +225,7 @@ def step5_2_TDL_full(env, rt, BRF=100e6):
     plt.figure(figsize=(8,4))
     plt.plot(
         t_l*1e9,            # ns
-        np.abs(h_l),        # amplitude
+        np.abs(lamb*h_l/(3*np.pi**2)),        # amplitude
         '-',               # line with circle markers
         linewidth=2,
         markersize=5
@@ -241,5 +243,5 @@ def step5_2_TDL_full(env, rt, BRF=100e6):
 if __name__ == '__main__':
     env = Environment()
     rt  = RayTracing(env)
-   # step5_full_wideband(env, rt, BRF=100e6)
+    step5_full_wideband(env, rt, BRF=100e6)
     step5_2_TDL_full(env, rt, BRF=100e6)
